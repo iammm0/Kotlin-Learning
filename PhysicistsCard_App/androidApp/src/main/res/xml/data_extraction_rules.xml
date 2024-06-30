@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules xmlns:android="http://schemas.android.com/apk/res/android">
+    <cloud-backup>
+        <include domain="file" path="."/>
+        <exclude domain="file" path="cache"/>
+        <exclude domain="file" path="code_cache"/>
+    </cloud-backup>
+    <device-transfer>
+        <include domain="file" path="."/>
+        <exclude domain="file" path="cache"/>
+        <exclude domain="file" path="code_cache"/>
+    </device-transfer>
+</data-extraction-rules>
+
+<!-- 定义了云备份和设备传输的规则。可以根据应用的需求来定制哪些文件和目录应该包含在备份中，哪些应该排除。 -->

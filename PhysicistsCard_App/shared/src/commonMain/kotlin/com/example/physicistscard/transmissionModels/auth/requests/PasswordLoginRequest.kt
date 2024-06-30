@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 data class PasswordLoginRequest(
     val identifier: String,
     val password: String
-) : com.example.physicistscard.transmissionModels.auth.requests.LoginRequest()
+) : LoginRequest()

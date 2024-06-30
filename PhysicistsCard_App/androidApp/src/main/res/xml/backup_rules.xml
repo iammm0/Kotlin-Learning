@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <include domain="file" path="."/>
+    <exclude domain="file" path="cache"/>
+    <exclude domain="file" path="code_cache"/>
+    <!-- 你可以根据需要添加更多的规则 -->
+</full-backup-content>
+
+<!-- 用于控制全备份的内容，如果不需要细化控制可以省略。 -->

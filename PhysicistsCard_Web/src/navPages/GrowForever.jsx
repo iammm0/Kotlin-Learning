@@ -5,7 +5,7 @@ const GrowForever = () => {
     return (
         <div>
             <h2>永恒之森</h2>
-            <p>这是永恒之森的内容。</p>
+            <p>尚在开发。</p>
         </div>
     );
 };

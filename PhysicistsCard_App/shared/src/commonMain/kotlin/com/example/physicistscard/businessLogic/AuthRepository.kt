@@ -1,4 +1,4 @@
-import com.example.physicistscard.AuthApiService
+import com.example.physicistscard.apiServices.AuthApiService
 import com.example.physicistscard.transmissionModels.auth.requests.EmailCodeLoginRequest
 import com.example.physicistscard.transmissionModels.auth.requests.PhoneCodeLoginRequest
 import com.example.physicistscard.transmissionModels.auth.requests.RegistrationRequest

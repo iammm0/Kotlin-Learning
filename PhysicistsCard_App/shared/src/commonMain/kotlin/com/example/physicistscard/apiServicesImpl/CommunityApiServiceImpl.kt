@@ -1,6 +1,6 @@
 package com.example.physicistscard.apiServicesImpl
 
-import com.example.physicistscard.CommunityApiService
+import com.example.physicistscard.apiServices.CommunityApiService
 import com.example.physicistscard.transmissionModels.community.interaction.comment.UserComment
 import com.example.physicistscard.transmissionModels.community.interaction.favorite.UserFavorite
 import com.example.physicistscard.transmissionModels.community.interaction.like.UserLike

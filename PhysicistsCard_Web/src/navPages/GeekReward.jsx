@@ -5,7 +5,7 @@ const GeekReward = () => {
     return (
         <div>
             <h2>极客悬赏</h2>
-            <p>这是极客悬赏的内容。</p>
+            <p>尚在开发。</p>
         </div>
     );
 };

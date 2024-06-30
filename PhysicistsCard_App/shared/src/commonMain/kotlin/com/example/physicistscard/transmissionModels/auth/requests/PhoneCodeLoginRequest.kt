@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 data class PhoneCodeLoginRequest(
     val phone: String,
     val phoneCode: String
-) : com.example.physicistscard.transmissionModels.auth.requests.LoginRequest()
+) : LoginRequest()
