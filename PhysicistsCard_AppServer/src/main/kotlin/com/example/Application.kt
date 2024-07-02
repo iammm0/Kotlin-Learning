@@ -19,6 +19,8 @@ import com.example.repositories.community.UserFavoriteRepository
 import com.example.repositories.community.UserLikeRepository
 import com.example.repositories.store.OrderRepository
 import com.example.repositories.store.ProductRepository
+import com.example.services.dataAccessServices.auth.JwtTokenService
+import com.example.services.dataAccessServices.auth.TokenService
 import com.example.services.dataAccessServices.community.PostService
 import com.example.services.dataAccessServices.community.UserCommentService
 import com.example.services.dataAccessServices.community.UserFavoriteService
@@ -27,6 +29,7 @@ import com.example.services.dataAccessServices.store.OrderService
 import com.example.services.dataAccessServices.store.ProductService
 import com.example.utils.DatabaseConfig
 import com.example.utils.DatabaseTables
+import com.typesafe.config.ConfigFactory
 import io.ktor.server.application.*
 // 处理请求时需要注意执行的一些操作：
 // 一.请求信息：
@@ -46,6 +49,13 @@ fun Application.module() {
 
     configurations()
 
+    // 加载配置
+    val config = ConfigFactory.load()
+    val jwtSecret = config.getString("ktor.security.jwt.secret")
+    val jwtIssuer = config.getString("ktor.security.jwt.issuer")
+    val jwtRealm = config.getString("ktor.security.jwt.realm")
+    val jwtValidityInMs = config.getLong("ktor.security.jwt.validityInMs")
+
     val postRepository = PostRepository()
     val verificationCodeRepository = VerificationCodeRepository()
     val userCommentRepository = UserCommentRepository()
@@ -61,11 +71,12 @@ fun Application.module() {
     val favoriteRepository = UserFavoriteService(userFavoriteRepository)
     val productService = ProductService(productRepository)
     val orderService = OrderService(orderRepository)
+    val tokenService = JwtTokenService(jwtSecret, jwtIssuer, jwtValidityInMs)
 
     // 启动应用...
     cleanupService.startCleanupJob()
 
-    authRoutes()
+    authRoutes(tokenService)
     communityRoutes(
         postService,
         commentService,

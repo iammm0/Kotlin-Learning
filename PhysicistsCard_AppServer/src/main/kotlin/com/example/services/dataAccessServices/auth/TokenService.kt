@@ -1,6 +1,6 @@
 package com.example.services.dataAccessServices.auth
 
-import com.example.models.databaseTableModels.auth.user.User
+import com.example.models.transmissionModels.auth.User
 
 // 负责生成、验证和刷新这些令牌
 interface TokenService {

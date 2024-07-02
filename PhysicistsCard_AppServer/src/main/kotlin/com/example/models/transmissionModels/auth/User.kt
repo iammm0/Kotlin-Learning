@@ -1,4 +1,4 @@
-package com.example.models.databaseTableModels.auth.user
+package com.example.models.transmissionModels.auth
 
 import com.example.utils.LocalDateTimeSerializer
 import kotlinx.serialization.Serializable
@@ -17,4 +17,5 @@ data class User(
     val registerDate: LocalDateTime, // 注册时间
     val isEmailVerified: Boolean = false, // 邮箱是否验证，重要的安全和通信特性
     val isPhoneVerified: Boolean = false, // 手机号是否验证，同样重要的安全和通信特性
+    val role: Role // 新增角色字段
 )

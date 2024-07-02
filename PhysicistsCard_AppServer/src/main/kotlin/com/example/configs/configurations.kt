@@ -1,23 +1,31 @@
 package com.example.configs
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import com.example.models.transmissionModels.community.Content
 import com.example.models.transmissionModels.community.ImageContent
 import com.example.models.transmissionModels.community.TextContent
 import com.example.models.transmissionModels.community.VideoContent
+import com.typesafe.config.ConfigFactory
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.methodoverride.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.websocket.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import org.slf4j.event.Level
+import java.time.Duration
 
 fun Application.configurations() {
 
@@ -27,6 +35,10 @@ fun Application.configurations() {
 
     install(WebSockets) {
         contentConverter = KotlinxWebsocketSerializationConverter(Json)
+        pingPeriod = Duration.ofMinutes(1)
+        timeout = Duration.ofSeconds(15)
+        maxFrameSize = Long.MAX_VALUE
+        masking = false
     }
 
     // 配置日志记录设置
@@ -56,24 +68,36 @@ fun Application.configurations() {
         })
     }
 
-    // // 配置JWT认证
-    // val secret = environment.config.property("jwt.secret").getString()
-    // val issuer = environment.config.property("jwt.issuer").getString()
-    // val audience = environment.config.property("jwt.audience").getString()
-    // val myRealm = environment.config.property("jwt.realm").getString()
-//
-    // install(Authentication) {
-    //     jwt("auth-jwt") {
-    //         realm = myRealm
-    //         verifier(
-    //             JWT
-    //             .require(Algorithm.HMAC256(secret))
-    //             .withAudience(audience)
-    //             .withIssuer(issuer)
-    //             .build())
-    //     }
-    // }
-//
+    // 加载配置
+    val config = ConfigFactory.load()
+    val jwtSecret = config.getString("ktor.security.jwt.secret")
+    val jwtIssuer = config.getString("ktor.security.jwt.issuer")
+    val jwtRealm = config.getString("ktor.security.jwt.realm")
+
+    val algorithm = Algorithm.HMAC256(jwtSecret)
+
+    install(Authentication) {
+        jwt {
+            this.realm = jwtRealm
+            verifier(
+                JWT
+                    .require(algorithm)
+                    .withIssuer(jwtIssuer)
+                    .build()
+            )
+            validate { credential ->
+                if (credential.payload.getClaim("userId").asString().isNotEmpty()) {
+                    JWTPrincipal(credential.payload)
+                } else {
+                    null
+                }
+            }
+            challenge { _, _ ->
+                call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
+            }
+        }
+    }
+
     // // 配置错误 HTML 响应文件
     // install(StatusPages) {
     //     statusFile(HttpStatusCode.Unauthorized, HttpStatusCode.PaymentRequired, filePattern = "error#.html")

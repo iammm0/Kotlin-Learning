@@ -29,22 +29,22 @@ class UserLikeRepository : IUserLikeRepository {
     }
 
     override fun removeLike(userId: String, targetId: String, targetType: LikeTargetType): Boolean = transaction {
-        com.example.models.databaseTableModels.community.interaction.like.UserLikes.deleteWhere {
-            (com.example.models.databaseTableModels.community.interaction.like.UserLikes.userId eq userId) and
-                    (com.example.models.databaseTableModels.community.interaction.like.UserLikes.targetId eq targetId) and
-                    (com.example.models.databaseTableModels.community.interaction.like.UserLikes.targetType eq targetType)
+        UserLikes.deleteWhere {
+            (UserLikes.userId eq userId) and
+                    (UserLikes.targetId eq targetId) and
+                    (UserLikes.targetType eq targetType)
         } > 0  // 返回是否成功删除（删除行数 > 0）
     }
 
     override fun findLikesByUserId(userId: String): List<UserLike> = transaction {
-        com.example.models.databaseTableModels.community.interaction.like.UserLikes.selectAll().where { com.example.models.databaseTableModels.community.interaction.like.UserLikes.userId eq userId }
+        UserLikes.selectAll().where { UserLikes.userId eq userId }
             .map { it.toUserLike() }
     }
 
     override fun countLikes(targetId: String, targetType: LikeTargetType): Int = transaction {
-        com.example.models.databaseTableModels.community.interaction.like.UserLikes.selectAll().where {
-            (com.example.models.databaseTableModels.community.interaction.like.UserLikes.targetId eq targetId) and
-                    (com.example.models.databaseTableModels.community.interaction.like.UserLikes.targetType eq targetType)
+        UserLikes.selectAll().where {
+            (UserLikes.targetId eq targetId) and
+                    (UserLikes.targetType eq targetType)
         }.count().toInt()  // 计算并返回总数
     }
 

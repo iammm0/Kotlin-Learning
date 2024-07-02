@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class RegistrationResponse(
     val success: Boolean,
     val message: String,
-    val userId: String? // 用户注册成功后，可能会返回用户ID
+    val userId: String?, // 用户注册成功后，可能会返回用户ID
+    val token: String?
 )

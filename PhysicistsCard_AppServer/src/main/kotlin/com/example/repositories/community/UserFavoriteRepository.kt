@@ -12,7 +12,7 @@ import java.util.*
 class UserFavoriteRepository : IUserFavoriteRepository {
     override fun addFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): UserFavorite = transaction {
         val favoriteId = UUID.randomUUID().toString()  // 生成唯一标识符
-        com.example.models.databaseTableModels.community.interaction.favorite.UserFavorites.insert {
+        UserFavorites.insert {
             it[this.favoriteId] = favoriteId
             it[this.userId] = userId
             it[this.targetId] = targetId
@@ -29,15 +29,15 @@ class UserFavoriteRepository : IUserFavoriteRepository {
     }
 
     override fun removeFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): Boolean = transaction {
-        com.example.models.databaseTableModels.community.interaction.favorite.UserFavorites.deleteWhere {
-            (com.example.models.databaseTableModels.community.interaction.favorite.UserFavorites.userId eq userId) and
-                    (com.example.models.databaseTableModels.community.interaction.favorite.UserFavorites.targetId eq targetId) and
-                    (com.example.models.databaseTableModels.community.interaction.favorite.UserFavorites.targetType eq targetType)
+        UserFavorites.deleteWhere {
+            (UserFavorites.userId eq userId) and
+                    (UserFavorites.targetId eq targetId) and
+                    (UserFavorites.targetType eq targetType)
         } > 0  // 返回是否成功删除（删除行数 > 0）
     }
 
     override fun findFavoritesByUserId(userId: String): List<UserFavorite> = transaction {
-        com.example.models.databaseTableModels.community.interaction.favorite.UserFavorites.selectAll().where { com.example.models.databaseTableModels.community.interaction.favorite.UserFavorites.userId eq userId }
+        UserFavorites.selectAll().where { UserFavorites.userId eq userId }
             .map { it.toUserFavorite() }
     }
 

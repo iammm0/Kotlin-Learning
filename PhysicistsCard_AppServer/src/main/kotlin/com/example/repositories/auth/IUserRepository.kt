@@ -1,6 +1,6 @@
 package com.example.repositories.auth
 
-import com.example.models.databaseTableModels.auth.user.User
+import com.example.models.transmissionModels.auth.User
 
 interface IUserRepository {
     fun createUser(user: User): User

@@ -1,4 +1,4 @@
-package com.example.models.databaseTableModels.auth.user
+package com.example.models.transmissionModels.auth
 
 import kotlinx.serialization.Serializable
 

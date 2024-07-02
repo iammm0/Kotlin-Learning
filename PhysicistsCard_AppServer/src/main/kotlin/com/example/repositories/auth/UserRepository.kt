@@ -1,6 +1,6 @@
 package com.example.repositories.auth
 
-import com.example.models.databaseTableModels.auth.user.User
+import com.example.models.transmissionModels.auth.User
 import com.example.models.transmissionModels.auth.Users
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -57,7 +57,8 @@ class UserRepository :  IUserRepository {
                         bio = it[Users.bio],
                         registerDate = it[Users.registerDate],
                         isEmailVerified = it[Users.isEmailVerified],
-                        isPhoneVerified = it[Users.isPhoneVerified]
+                        isPhoneVerified = it[Users.isPhoneVerified],
+                        role = it[Users.role]
                     )
                 }.singleOrNull()
         }

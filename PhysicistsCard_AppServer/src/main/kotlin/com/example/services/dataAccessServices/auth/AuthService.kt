@@ -1,10 +1,11 @@
 package com.example.services.dataAccessServices.auth
 
 import at.favre.lib.crypto.bcrypt.BCrypt
-import com.example.models.databaseTableModels.auth.user.User
+import com.example.models.transmissionModels.auth.User
 import com.example.models.transmissionModels.auth.VerificationType
 import com.example.models.transmissionModels.auth.requests.RegistrationRequest
 import com.example.models.transmissionModels.auth.requests.SendCodeRequest
+import com.example.models.transmissionModels.auth.responses.LoginResponse
 import com.example.models.transmissionModels.auth.responses.RegistrationResponse
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
 import com.example.repositories.auth.UserRepository
@@ -15,12 +16,13 @@ import com.example.utils.hashPassword
 import java.time.LocalDateTime
 import java.util.*
 
-class AuthService : IAuthService {
+class AuthService(
+    private val tokenService: TokenService // 注入TokenService
+) : IAuthService {
     private val userRepository = UserRepository()
     private val verificationCodeRepository = VerificationCodeRepository()
 
     override fun registerUser(registrationRequest: RegistrationRequest): RegistrationResponse {
-
         if (registrationRequest.email.isNullOrEmpty() && registrationRequest.phone.isNullOrEmpty()) {
             throw IllegalArgumentException("邮箱或手机号至少需要一个")
         }
@@ -51,12 +53,16 @@ class AuthService : IAuthService {
             bio = null,
             registerDate = LocalDateTime.now(),
             isEmailVerified = isEmailVerified,
-            isPhoneVerified = isPhoneVerified
+            isPhoneVerified = isPhoneVerified,
+            role = registrationRequest.role // 设置角色
         )
 
         userRepository.createUser(newUser)
 
-        return RegistrationResponse(success = true,"注册成功", newUser.userId)
+        // 生成JWT令牌
+        val token = tokenService.generateToken(newUser)
+
+        return RegistrationResponse(success = true, message = "注册成功", userId = newUser.userId, token = token)
     }
 
     override fun sendVerificationCode(identifier: String, transData: SendCodeRequest): SendCodeResponse {
@@ -87,34 +93,33 @@ class AuthService : IAuthService {
         }
     }
 
-    override fun loginWithPassword(identifier: String, password: String): Boolean {
-        // 使用userRepository查询用户信息
+    override fun loginWithPassword(identifier: String, password: String): LoginResponse {
         val user = userRepository.findUserByEmailOrPhone(identifier)
-            ?: return false // 用户不存在
+            ?: return LoginResponse(success = false, token = null, errorMessage = "用户不存在")
 
-        // 验证密码（假设使用bcrypt进行哈希）
         val isPasswordValid = BCrypt.verifyer().verify(password.toCharArray(), user.passwordHash).verified
-        return isPasswordValid
+        return if (isPasswordValid) {
+            val token = tokenService.generateToken(user)
+            LoginResponse(success = true, token = token, errorMessage = null)
+        } else {
+            LoginResponse(success = false, token = null, errorMessage = "密码不正确")
+        }
     }
 
-    override fun loginWithVerificationCode(identifier: String, code: String): Boolean {
-        // 根据identifier找到对应的用户
+    override fun loginWithVerificationCode(identifier: String, code: String): LoginResponse {
         val user = userRepository.findUserByEmailOrPhone(identifier)
-            ?: return false // 用户不存在
+            ?: return LoginResponse(success = false, token = null, errorMessage = "用户不存在")
 
-        // 确定用于验证的标识符是邮箱还是电话号码
-        val verifiedIdentifier = user.email ?: user.phone ?: return false
+        val verifiedIdentifier = user.email ?: user.phone ?: return LoginResponse(success = false, token = null, errorMessage = "无效的用户标识")
 
-        // 检查是否有有效的、未过期的验证码
         val isValidCode = verificationCodeRepository.verifyCode(verifiedIdentifier, code)
-        if (!isValidCode) {
-            return false // 验证码无效或已过期
+        return if (isValidCode) {
+            val token = tokenService.generateToken(user)
+            verificationCodeRepository.deleteExpiredVerificationCodes()
+            LoginResponse(success = true, token = token, errorMessage = null)
+        } else {
+            LoginResponse(success = false, token = null, errorMessage = "验证码无效或已过期")
         }
-
-        // 可选：登录成功后，清除已使用的验证码
-        verificationCodeRepository.deleteExpiredVerificationCodes()
-
-        return true
     }
 
     override fun verifyCode(identifier: String, code: String): Boolean {
