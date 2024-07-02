@@ -1,7 +1,7 @@
 package com.example.repositories.auth
 
+import com.example.models.databaseTableModels.auth.user.Users
 import com.example.models.transmissionModels.auth.User
-import com.example.models.transmissionModels.auth.Users
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
