@@ -4,7 +4,30 @@ import com.example.models.transmissionModels.auth.verificationCodes.Verification
 
 
 interface IVerificationCodeRepository {
+    /**
+     * 保存验证码
+     *
+     * @param code 验证码
+     * @param identifier 用户标识符（邮箱或手机号）
+     * @param validityDuration 验证码有效期（分钟）
+     * @param type 验证码类型
+     * @return 保存验证码是否成功
+     */
     fun saveVerificationCode(code: String, identifier: String, validityDuration: Long, type: VerificationType): Boolean
+
+    /**
+     * 验证验证码
+     *
+     * @param identifier 用户标识符（邮箱或手机号）
+     * @param code 验证码
+     * @return 验证码是否有效
+     */
     fun verifyCode(identifier: String, code: String): Boolean
+
+    /**
+     * 删除所有过期的验证码
+     *
+     * @return 删除操作是否成功
+     */
     fun deleteExpiredVerificationCodes(): Boolean
 }

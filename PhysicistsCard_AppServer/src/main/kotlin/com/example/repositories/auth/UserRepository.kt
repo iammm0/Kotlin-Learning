@@ -1,5 +1,6 @@
 package com.example.repositories.auth
 
+import IUserRepository
 import com.example.models.databaseTableModels.auth.authToken.AuthTokens
 import com.example.models.databaseTableModels.auth.user.Users
 import com.example.models.transmissionModels.auth.user.Role
@@ -31,7 +32,7 @@ class UserRepository :  IUserRepository {
     }
 
     // 返回 Boolean 类型的 createUser 方法
-    fun createUserAndReturnUser(user: User): Boolean {
+    override fun createUserAndReturnUser(user: User): Boolean {
         return transaction {
             addLogger(StdOutSqlLogger)
             Users.insert {
@@ -98,7 +99,7 @@ class UserRepository :  IUserRepository {
         return updatedRows > 0
     }
 
-    fun updateUserRole(userId: String, role: Role): Boolean {
+    override fun updateUserRole(userId: String, role: Role): Boolean {
         return transaction {
             addLogger(StdOutSqlLogger)
             Users.update({ Users.userId eq userId }) {
@@ -107,14 +108,14 @@ class UserRepository :  IUserRepository {
         }
     }
 
-    fun deleteTokensByUserId(userId: String): Boolean {
+    override fun deleteTokensByUserId(userId: String): Boolean {
         return transaction {
             addLogger(StdOutSqlLogger)
             AuthTokens.deleteWhere { AuthTokens.userId eq userId } > 0
         }
     }
 
-    fun updateUserAvatar(userId: String, avatarUrl: String): Boolean {
+    override fun updateUserAvatar(userId: String, avatarUrl: String): Boolean {
         return transaction {
             addLogger(StdOutSqlLogger)
             Users.update({ Users.userId eq userId }) {
@@ -123,7 +124,7 @@ class UserRepository :  IUserRepository {
         }
     }
 
-    fun updateUserPhone(userId: String, phone: String): Boolean {
+    override fun updateUserPhone(userId: String, phone: String): Boolean {
         return transaction {
             addLogger(StdOutSqlLogger)
             Users.update({ Users.userId eq userId }) {
@@ -132,7 +133,7 @@ class UserRepository :  IUserRepository {
         }
     }
 
-    fun updateUserEmail(userId: String, email: String): Boolean {
+    override fun updateUserEmail(userId: String, email: String): Boolean {
         return transaction {
             addLogger(StdOutSqlLogger)
             Users.update({ Users.userId eq userId }) {
@@ -141,7 +142,7 @@ class UserRepository :  IUserRepository {
         }
     }
 
-    fun checkDuplicateEmailOrPhone(email: String?, phone: String?): Boolean {
+    override fun checkDuplicateEmailOrPhone(email: String?, phone: String?): Boolean {
         return transaction {
             addLogger(StdOutSqlLogger)
             Users.selectAll().where { (Users.email eq email) or (Users.phone eq phone) }.count() > 0

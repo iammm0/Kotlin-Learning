@@ -1,5 +1,7 @@
 package com.example.services.dataAccessServices.auth
 
+import IAuthTokenRepository
+import IUserRepository
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.models.transmissionModels.auth.requests.AddAccountRequest
 import com.example.models.transmissionModels.auth.user.User
@@ -10,9 +12,7 @@ import com.example.models.transmissionModels.auth.responses.LoginResponse
 import com.example.models.transmissionModels.auth.responses.RegistrationResponse
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
 import com.example.models.transmissionModels.auth.user.Role
-import com.example.repositories.auth.TokenRepository
-import com.example.repositories.auth.UserRepository
-import com.example.repositories.auth.VerificationCodeRepository
+import com.example.repositories.auth.*
 import com.example.services.thirdPartyProviderServices.AliyunEmailService
 import com.example.services.thirdPartyProviderServices.AliyunSmsService
 import com.example.utils.hashPassword
@@ -20,11 +20,11 @@ import java.time.LocalDateTime
 import java.util.*
 
 class AuthService(
-    private val tokenService: TokenService // 注入TokenService
+    private val tokenService: ITokenService, // 注入TokenService
+    private val userRepository: IUserRepository,
+    private val verificationCodeRepository: IVerificationCodeRepository,
+    private val tokenRepository: IAuthTokenRepository
 ) : IAuthService {
-    private val userRepository = UserRepository()
-    private val verificationCodeRepository = VerificationCodeRepository()
-    private val tokenRepository = TokenRepository()
 
     override fun registerUser(registrationRequest: RegistrationRequest): RegistrationResponse {
         if (registrationRequest.email.isNullOrEmpty() && registrationRequest.phone.isNullOrEmpty()) {
@@ -152,27 +152,27 @@ class AuthService(
         return result
     }
 
-    fun becomeSeller(userId: String): Boolean {
+    override fun becomeSeller(userId: String): Boolean {
         return userRepository.updateUserRole(userId, Role.MERCHANT)
     }
 
-    fun logout(userId: String): Boolean {
+    override fun logout(userId: String): Boolean {
         return tokenRepository.deleteTokensByUserId(userId)
     }
 
-    fun changeAvatar(userId: String, avatarUrl: String): Boolean {
+    override fun changeAvatar(userId: String, avatarUrl: String): Boolean {
         return userRepository.updateUserAvatar(userId, avatarUrl)
     }
 
-    fun bindPhone(userId: String, phone: String): Boolean {
+    override fun bindPhone(userId: String, phone: String): Boolean {
         return userRepository.updateUserPhone(userId, phone)
     }
 
-    fun bindEmail(userId: String, email: String): Boolean {
+    override fun bindEmail(userId: String, email: String): Boolean {
         return userRepository.updateUserEmail(userId, email)
     }
 
-    fun addAccount(request: AddAccountRequest): Boolean {
+    override fun addAccount(request: AddAccountRequest): Boolean {
         val newUser = User(
             userId = generateUUID(),
             username = request.username,

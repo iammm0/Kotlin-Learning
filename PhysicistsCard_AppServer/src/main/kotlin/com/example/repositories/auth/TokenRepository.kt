@@ -1,5 +1,6 @@
 package com.example.repositories.auth
 
+import IAuthTokenRepository
 import com.example.models.databaseTableModels.auth.authToken.AuthTokens
 import com.example.models.transmissionModels.auth.tokens.AuthToken
 import com.example.models.transmissionModels.auth.user.User
@@ -66,7 +67,7 @@ class TokenRepository : IAuthTokenRepository {
         }
     }
 
-    fun deleteTokensByUserId(userId: String): Boolean {
+    override fun deleteTokensByUserId(userId: String): Boolean {
         return transaction {
             addLogger(StdOutSqlLogger)
             AuthTokens.deleteWhere { AuthTokens.userId eq userId } > 0

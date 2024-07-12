@@ -5,8 +5,7 @@ import com.example.models.transmissionModels.auth.responses.LoginResponse
 import com.example.models.transmissionModels.auth.responses.ResetPasswordResponse
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
 import com.example.models.transmissionModels.auth.user.User
-import com.example.services.dataAccessServices.auth.AuthService
-import com.example.services.dataAccessServices.auth.JwtTokenService
+import com.example.services.dataAccessServices.auth.IAuthService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -14,9 +13,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Application.authRoutes(tokenService: JwtTokenService) {
-
-    val authService = AuthService(tokenService = tokenService)
+fun Application.authRoutes(
+    authService: IAuthService
+) {
 
     routing {
         route("/user") {
