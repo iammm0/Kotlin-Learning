@@ -1,0 +1,11 @@
+.bounty-list-container {
+    padding: 20px;
+}
+
+.bounty-list-container h2 {
+    margin-bottom: 20px;
+}
+
+.bounty-list-container .ant-btn {
+    margin-bottom: 20px;
+}

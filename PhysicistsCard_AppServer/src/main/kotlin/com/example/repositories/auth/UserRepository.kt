@@ -1,17 +1,18 @@
 package com.example.repositories.auth
 
+import com.example.models.databaseTableModels.auth.authToken.AuthTokens
 import com.example.models.databaseTableModels.auth.user.Users
-import com.example.models.transmissionModels.auth.User
+import com.example.models.transmissionModels.auth.user.Role
+import com.example.models.transmissionModels.auth.user.User
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class UserRepository :  IUserRepository {
+    // 返回 User 类型的 createUser 方法
     override fun createUser(user: User): User {
         val insertedUserId = transaction {
             addLogger(StdOutSqlLogger)
-
-            SchemaUtils.create(Users)
-
             Users.insert {
                 it[userId] = user.userId
                 it[username] = user.username
@@ -23,9 +24,30 @@ class UserRepository :  IUserRepository {
                 it[registerDate] = user.registerDate
                 it[isEmailVerified] = user.isEmailVerified
                 it[isPhoneVerified] = user.isPhoneVerified
+                it[role] = user.role
             } get Users.userId
         }
         return user.copy(userId = insertedUserId)
+    }
+
+    // 返回 Boolean 类型的 createUser 方法
+    fun createUserAndReturnUser(user: User): Boolean {
+        return transaction {
+            addLogger(StdOutSqlLogger)
+            Users.insert {
+                it[userId] = user.userId
+                it[username] = user.username
+                it[email] = user.email
+                it[phone] = user.phone
+                it[passwordHash] = user.passwordHash
+                it[avatarUrl] = user.avatarUrl
+                it[bio] = user.bio
+                it[registerDate] = user.registerDate
+                it[isEmailVerified] = user.isEmailVerified
+                it[isPhoneVerified] = user.isPhoneVerified
+                it[role] = user.role
+            }.insertedCount > 0
+        }
     }
 
     override fun updateUserEmailOrPhone(userId: String, email: String?, phone: String?): Boolean {
@@ -76,4 +98,53 @@ class UserRepository :  IUserRepository {
         return updatedRows > 0
     }
 
+    fun updateUserRole(userId: String, role: Role): Boolean {
+        return transaction {
+            addLogger(StdOutSqlLogger)
+            Users.update({ Users.userId eq userId }) {
+                it[Users.role] = role
+            } > 0
+        }
+    }
+
+    fun deleteTokensByUserId(userId: String): Boolean {
+        return transaction {
+            addLogger(StdOutSqlLogger)
+            AuthTokens.deleteWhere { AuthTokens.userId eq userId } > 0
+        }
+    }
+
+    fun updateUserAvatar(userId: String, avatarUrl: String): Boolean {
+        return transaction {
+            addLogger(StdOutSqlLogger)
+            Users.update({ Users.userId eq userId }) {
+                it[Users.avatarUrl] = avatarUrl
+            } > 0
+        }
+    }
+
+    fun updateUserPhone(userId: String, phone: String): Boolean {
+        return transaction {
+            addLogger(StdOutSqlLogger)
+            Users.update({ Users.userId eq userId }) {
+                it[Users.phone] = phone
+            } > 0
+        }
+    }
+
+    fun updateUserEmail(userId: String, email: String): Boolean {
+        return transaction {
+            addLogger(StdOutSqlLogger)
+            Users.update({ Users.userId eq userId }) {
+                it[Users.email] = email
+            } > 0
+        }
+    }
+
+    fun checkDuplicateEmailOrPhone(email: String?, phone: String?): Boolean {
+        return transaction {
+            addLogger(StdOutSqlLogger)
+            Users.selectAll().where { (Users.email eq email) or (Users.phone eq phone) }.count() > 0
+        }
+    }
 }

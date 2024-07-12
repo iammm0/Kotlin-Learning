@@ -8,10 +8,12 @@ package com.example
 // 编写单元测试与集成测试
 
 import com.example.configs.configurations
+import com.example.repositories.auth.TokenRepository
+import com.example.repositories.auth.TokenCleanupService
 import com.example.routes.auth.authRoutes
 import com.example.routes.community.communityRoutes
 import com.example.routes.store.storeRoutes
-import com.example.repositories.auth.CleanupService
+import com.example.repositories.auth.VerificationCodesCleanupService
 import com.example.repositories.auth.VerificationCodeRepository
 import com.example.repositories.community.PostRepository
 import com.example.repositories.community.UserCommentRepository
@@ -20,7 +22,6 @@ import com.example.repositories.community.UserLikeRepository
 import com.example.repositories.store.OrderRepository
 import com.example.repositories.store.ProductRepository
 import com.example.services.dataAccessServices.auth.JwtTokenService
-import com.example.services.dataAccessServices.auth.TokenService
 import com.example.services.dataAccessServices.community.PostService
 import com.example.services.dataAccessServices.community.UserCommentService
 import com.example.services.dataAccessServices.community.UserFavoriteService
@@ -53,7 +54,6 @@ fun Application.module() {
     val config = ConfigFactory.load()
     val jwtSecret = config.getString("ktor.security.jwt.secret")
     val jwtIssuer = config.getString("ktor.security.jwt.issuer")
-    val jwtRealm = config.getString("ktor.security.jwt.realm")
     val jwtValidityInMs = config.getLong("ktor.security.jwt.validityInMs")
 
     val postRepository = PostRepository()
@@ -63,8 +63,9 @@ fun Application.module() {
     val userFavoriteRepository = UserFavoriteRepository()
     val productRepository = ProductRepository()
     val orderRepository = OrderRepository()
+    val tokenRepository = TokenRepository()
 
-    val cleanupService = CleanupService(verificationCodeRepository)
+    val verificationCodesCleanupService = VerificationCodesCleanupService(verificationCodeRepository)
     val postService = PostService(postRepository)
     val commentService = UserCommentService(userCommentRepository)
     val likeService = UserLikeService(userLikeRepository)
@@ -72,9 +73,11 @@ fun Application.module() {
     val productService = ProductService(productRepository)
     val orderService = OrderService(orderRepository)
     val tokenService = JwtTokenService(jwtSecret, jwtIssuer, jwtValidityInMs)
+    val tokenCleanupService = TokenCleanupService(tokenRepository)
 
     // 启动应用...
-    cleanupService.startCleanupJob()
+    verificationCodesCleanupService.startCleanupJob()
+    tokenCleanupService.startCleanupJob()
 
     authRoutes(tokenService)
     communityRoutes(
@@ -91,5 +94,5 @@ fun Application.module() {
         favoriteRepository
     )
     // 应用关闭前
-    cleanupService.stopCleanupJob()
+    verificationCodesCleanupService.stopCleanupJob()
 }

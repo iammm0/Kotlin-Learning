@@ -111,5 +111,6 @@ dependencies {
     // 测试依赖
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion") // Ktor服务器测试支持
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion") // Kotlin测试和JUnit集成
-    testImplementation("io.mockk:mockk:$mockkVersion") // 用于Kotlin的mocking库，特别适合协程的测试
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.11") // 用于Kotlin的mocking库，特别适合协程的测试
 }

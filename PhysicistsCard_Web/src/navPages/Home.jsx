@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
-import './styles/Home.css';
+import './Home.css';
 import appIcon from '../assets/PhysCard.png';
 import iosIcon from '../assets/ios.png';
 import androidIcon from '../assets/android.png';

@@ -1,4 +1,13 @@
 package com.example.models.transmissionModels.auth.requests
 
-class AddAccountRequest {
-}
+import com.example.models.transmissionModels.auth.user.Role
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class AddAccountRequest(
+    val username: String,
+    val email: String? = null,
+    val phone: String? = null,
+    val password: String,
+    val role: Role
+)

@@ -6,7 +6,7 @@ import com.aliyuncs.dysmsapi.model.v20170525.SendSmsRequest
 import com.aliyuncs.exceptions.ClientException
 import com.aliyuncs.exceptions.ServerException
 import com.aliyuncs.profile.DefaultProfile
-import com.example.models.transmissionModels.auth.VerificationType
+import com.example.models.transmissionModels.auth.verificationCodes.VerificationType
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
 import com.example.repositories.auth.VerificationCodeRepository
 import java.util.concurrent.ThreadLocalRandom

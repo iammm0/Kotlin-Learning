@@ -4,6 +4,7 @@ import com.example.models.transmissionModels.auth.requests.*
 import com.example.models.transmissionModels.auth.responses.LoginResponse
 import com.example.models.transmissionModels.auth.responses.ResetPasswordResponse
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
+import com.example.models.transmissionModels.auth.user.User
 import com.example.services.dataAccessServices.auth.AuthService
 import com.example.services.dataAccessServices.auth.JwtTokenService
 import io.ktor.http.*
@@ -41,7 +42,7 @@ fun Application.authRoutes(tokenService: JwtTokenService) {
                 }
             }
 
-            // **使用邮箱代码登录**（适用于密码遗忘且使用邮箱注册的用户）
+            // 使用邮箱代码登录（适用于密码遗忘且使用邮箱注册的用户）
             post("/email-code-login") {
                 try {
                     val loginRequest = call.receive<EmailCodeLoginRequest>()
@@ -122,63 +123,79 @@ fun Application.authRoutes(tokenService: JwtTokenService) {
 
             authenticate {
                 // 注册为商家
-                post("/become_seller/") {
-                    try {
-                        // Implementation goes here
-                        call.respond(HttpStatusCode.OK, "注册为商家成功")
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "注册为商家失败: ${e.localizedMessage}"))
-                    }
+                post("/become_seller") {
+                    val principal = call.principal<User>()
+                    principal?.let {
+                        if (authService.becomeSeller(it.userId)) {
+                            call.respond(HttpStatusCode.OK, "注册为商家成功")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "注册为商家失败")
+                        }
+                    } ?: call.respond(HttpStatusCode.Unauthorized)
                 }
 
                 // 用户登出
                 post("/logout") {
-                    try {
-                        // Implementation goes here
-                        call.respond(HttpStatusCode.OK, "登出成功")
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "登出失败: ${e.localizedMessage}"))
-                    }
+                    val principal = call.principal<User>()
+                    principal?.let {
+                        if (authService.logout(it.userId)) {
+                            call.respond(HttpStatusCode.OK, "登出成功")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "登出失败")
+                        }
+                    } ?: call.respond(HttpStatusCode.Unauthorized)
                 }
 
                 // 切换头像
                 post("/change-avatar") {
-                    try {
-                        // Implementation goes here
-                        call.respond(HttpStatusCode.OK, "头像切换成功")
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "头像切换失败: ${e.localizedMessage}"))
-                    }
+                    val principal = call.principal<User>()
+                    principal?.let {
+                        val avatarUrl = call.receive<String>()
+                        if (authService.changeAvatar(it.userId, avatarUrl)) {
+                            call.respond(HttpStatusCode.OK, "头像切换成功")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "头像切换失败")
+                        }
+                    } ?: call.respond(HttpStatusCode.Unauthorized)
                 }
 
                 // 绑定手机
                 post("/binding-phone") {
-                    try {
-                        // Implementation goes here
-                        call.respond(HttpStatusCode.OK, "绑定手机成功")
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "绑定手机失败: ${e.localizedMessage}"))
-                    }
+                    val principal = call.principal<User>()
+                    principal?.let {
+                        val phone = call.receive<String>()
+                        if (authService.bindPhone(it.userId, phone)) {
+                            call.respond(HttpStatusCode.OK, "绑定手机成功")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "绑定手机失败")
+                        }
+                    } ?: call.respond(HttpStatusCode.Unauthorized)
                 }
 
                 // 绑定邮箱
                 post("/binding-email") {
-                    try {
-                        // Implementation goes here
-                        call.respond(HttpStatusCode.OK, "绑定邮箱成功")
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "绑定邮箱失败: ${e.localizedMessage}"))
-                    }
+                    val principal = call.principal<User>()
+                    principal?.let {
+                        val email = call.receive<String>()
+                        if (authService.bindEmail(it.userId, email)) {
+                            call.respond(HttpStatusCode.OK, "绑定邮箱成功")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "绑定邮箱失败")
+                        }
+                    } ?: call.respond(HttpStatusCode.Unauthorized)
                 }
 
                 // 添加账户
                 post("/add-account") {
-                    try {
-                        // Implementation goes here
-                        call.respond(HttpStatusCode.OK, "添加账户成功")
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "添加账户失败: ${e.localizedMessage}"))
-                    }
+                    val principal = call.principal<User>()
+                    principal?.let {
+                        val addAccountRequest = call.receive<AddAccountRequest>()
+                        if (authService.addAccount(addAccountRequest)) {
+                            call.respond(HttpStatusCode.OK, "添加账户成功")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "添加账户失败")
+                        }
+                    } ?: call.respond(HttpStatusCode.Unauthorized)
                 }
             }
         }

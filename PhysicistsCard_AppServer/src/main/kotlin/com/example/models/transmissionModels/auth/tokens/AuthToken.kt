@@ -1,4 +1,4 @@
-package com.example.models.transmissionModels.auth
+package com.example.models.transmissionModels.auth.tokens
 
 import com.example.utils.InstantSerializer
 import kotlinx.serialization.Serializable

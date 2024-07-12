@@ -1,4 +1,4 @@
-package com.example.models.transmissionModels.auth
+package com.example.models.transmissionModels.auth.user
 
 enum class Role {
     USER,

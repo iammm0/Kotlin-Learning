@@ -11,7 +11,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class AuthTokenRepository : IAuthTokenRepository {
+class TokenRepository : IAuthTokenRepository {
 
     override fun createToken(user: User, token: String, expiryDate: LocalDateTime, issuedAt: LocalDateTime): Boolean {
         val expiryInstant = expiryDate.atZone(ZoneId.systemDefault()).toInstant()
@@ -63,6 +63,13 @@ class AuthTokenRepository : IAuthTokenRepository {
             addLogger(StdOutSqlLogger)
 
             AuthTokens.deleteWhere { expiryDate lessEq now } > 0
+        }
+    }
+
+    fun deleteTokensByUserId(userId: String): Boolean {
+        return transaction {
+            addLogger(StdOutSqlLogger)
+            AuthTokens.deleteWhere { AuthTokens.userId eq userId } > 0
         }
     }
 }

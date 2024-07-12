@@ -1,6 +1,6 @@
 package com.example.models.transmissionModels.auth.requests
 
-import com.example.models.transmissionModels.auth.Role
+import com.example.models.transmissionModels.auth.user.Role
 import kotlinx.serialization.Serializable
 
 @Serializable

@@ -1,6 +1,6 @@
 package com.example.models.databaseTableModels.auth.user
 
-import com.example.models.transmissionModels.auth.Role
+import com.example.models.transmissionModels.auth.user.Role
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.javatime.datetime
 

@@ -2,7 +2,7 @@ package com.example.repositories.auth
 
 import kotlinx.coroutines.*
 
-class CleanupService(private val repository: VerificationCodeRepository) {
+class VerificationCodesCleanupService(private val repository: VerificationCodeRepository) {
     private val job = Job()
     private val scope = CoroutineScope(job + Dispatchers.Default)
 

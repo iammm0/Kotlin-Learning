@@ -1,7 +1,7 @@
 package com.example.repositories.auth
 
 import com.example.models.databaseTableModels.auth.verification.VerificationCodes
-import com.example.models.transmissionModels.auth.VerificationType
+import com.example.models.transmissionModels.auth.verificationCodes.VerificationType
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq

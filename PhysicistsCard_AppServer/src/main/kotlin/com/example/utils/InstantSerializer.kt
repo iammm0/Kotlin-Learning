@@ -10,7 +10,6 @@ import kotlinx.serialization.encoding.Encoder
 import java.time.Instant
 
 // Instant序列化器
-@OptIn(ExperimentalSerializationApi::class)
 object InstantSerializer : KSerializer<Instant> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Instant", PrimitiveKind.STRING)
 

@@ -1,6 +1,6 @@
 package com.example.repositories.auth
 
-import com.example.models.transmissionModels.auth.VerificationType
+import com.example.models.transmissionModels.auth.verificationCodes.VerificationType
 
 
 interface IVerificationCodeRepository {

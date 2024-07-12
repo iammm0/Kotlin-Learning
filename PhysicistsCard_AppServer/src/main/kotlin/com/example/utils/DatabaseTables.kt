@@ -17,7 +17,37 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object DatabaseTables {
     fun init() {
         transaction {
-            // 首先创建无外键依赖的基本表
+            // 清空数据库中的所有表
+            // DatabaseCleaner.clearDatabase(
+            //     Users,
+            //     UserAddresses,
+            //     VerificationCodes,
+            //     Orders,
+            //     OrderItems,
+            //     OrderHistories,
+            //     PaymentInfos,
+            //     ShippingInfos,
+            //     com.example.models.databaseTableModels.community.interaction.like.UserLikes,
+            //     com.example.models.databaseTableModels.community.interaction.comment.UserComments,
+            //     com.example.models.databaseTableModels.community.interaction.favorite.UserFavorites,
+            //     com.example.models.databaseTableModels.community.post.content.Contents,
+            //     com.example.models.databaseTableModels.community.post.content.TextContents,
+            //     com.example.models.databaseTableModels.community.post.content.ImageContents,
+            //     com.example.models.databaseTableModels.community.post.content.VideoContents,
+            //     com.example.models.databaseTableModels.community.post.mPost.PostCategories,
+            //     com.example.models.databaseTableModels.community.post.mPost.PostTags,
+            //     com.example.models.databaseTableModels.community.post.mPost.Posts,
+            //     com.example.models.databaseTableModels.community.post.mPost.PostTagRelations,
+            //     Products,
+            //     ProductVariants,
+            //     ProductTags,
+            //     ProductPhysicists,
+            //     ProductDescriptions,
+            //     StoreBags,
+            //     BagItems
+            // )
+
+            // 创建无外键依赖的基本表
             SchemaUtils.create(Users)
             SchemaUtils.create(UserAddresses)
             SchemaUtils.create(VerificationCodes)
@@ -57,7 +87,6 @@ object DatabaseTables {
             // 创建购物车相关表
             SchemaUtils.create(StoreBags)  // 依赖 Users
             SchemaUtils.create(BagItems)  // 依赖 StoreBags and Products
-
         }
     }
 }

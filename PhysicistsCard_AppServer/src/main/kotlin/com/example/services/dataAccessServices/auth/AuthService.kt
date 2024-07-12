@@ -1,13 +1,16 @@
 package com.example.services.dataAccessServices.auth
 
 import at.favre.lib.crypto.bcrypt.BCrypt
-import com.example.models.transmissionModels.auth.User
-import com.example.models.transmissionModels.auth.VerificationType
+import com.example.models.transmissionModels.auth.requests.AddAccountRequest
+import com.example.models.transmissionModels.auth.user.User
+import com.example.models.transmissionModels.auth.verificationCodes.VerificationType
 import com.example.models.transmissionModels.auth.requests.RegistrationRequest
 import com.example.models.transmissionModels.auth.requests.SendCodeRequest
 import com.example.models.transmissionModels.auth.responses.LoginResponse
 import com.example.models.transmissionModels.auth.responses.RegistrationResponse
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
+import com.example.models.transmissionModels.auth.user.Role
+import com.example.repositories.auth.TokenRepository
 import com.example.repositories.auth.UserRepository
 import com.example.repositories.auth.VerificationCodeRepository
 import com.example.services.thirdPartyProviderServices.AliyunEmailService
@@ -21,6 +24,7 @@ class AuthService(
 ) : IAuthService {
     private val userRepository = UserRepository()
     private val verificationCodeRepository = VerificationCodeRepository()
+    private val tokenRepository = TokenRepository()
 
     override fun registerUser(registrationRequest: RegistrationRequest): RegistrationResponse {
         if (registrationRequest.email.isNullOrEmpty() && registrationRequest.phone.isNullOrEmpty()) {
@@ -33,6 +37,11 @@ class AuthService(
         }
         if (!registrationRequest.phone.isNullOrEmpty() && !registrationRequest.phone.isPhoneNumber()) {
             throw IllegalArgumentException("无效的手机号格式")
+        }
+
+        // 检查重复的邮箱或手机号
+        if (userRepository.checkDuplicateEmailOrPhone(registrationRequest.email, registrationRequest.phone)) {
+            throw IllegalArgumentException("邮箱或手机号已被使用")
         }
 
         // 根据提供的信息，判断是通过哪种方式注册的，并据此设置验证状态
@@ -94,16 +103,22 @@ class AuthService(
     }
 
     override fun loginWithPassword(identifier: String, password: String): LoginResponse {
-        val user = userRepository.findUserByEmailOrPhone(identifier)
-            ?: return LoginResponse(success = false, token = null, errorMessage = "用户不存在")
+        val user = userRepository.findUserByEmailOrPhone(identifier) ?: return LoginResponse(
+            success = false,
+            token = null,
+            errorMessage = "用户名或密码错误"
+        )
 
-        val isPasswordValid = BCrypt.verifyer().verify(password.toCharArray(), user.passwordHash).verified
-        return if (isPasswordValid) {
-            val token = tokenService.generateToken(user)
-            LoginResponse(success = true, token = token, errorMessage = null)
-        } else {
-            LoginResponse(success = false, token = null, errorMessage = "密码不正确")
+        if (!verifyPassword(password, user.passwordHash)) {
+            return LoginResponse(
+                success = false,
+                token = null,
+                errorMessage = "用户名或密码错误"
+            )
         }
+
+        val token = tokenService.generateToken(user)
+        return LoginResponse(success = true, token = token, errorMessage = null)
     }
 
     override fun loginWithVerificationCode(identifier: String, code: String): LoginResponse {
@@ -137,6 +152,43 @@ class AuthService(
         return result
     }
 
+    fun becomeSeller(userId: String): Boolean {
+        return userRepository.updateUserRole(userId, Role.MERCHANT)
+    }
+
+    fun logout(userId: String): Boolean {
+        return tokenRepository.deleteTokensByUserId(userId)
+    }
+
+    fun changeAvatar(userId: String, avatarUrl: String): Boolean {
+        return userRepository.updateUserAvatar(userId, avatarUrl)
+    }
+
+    fun bindPhone(userId: String, phone: String): Boolean {
+        return userRepository.updateUserPhone(userId, phone)
+    }
+
+    fun bindEmail(userId: String, email: String): Boolean {
+        return userRepository.updateUserEmail(userId, email)
+    }
+
+    fun addAccount(request: AddAccountRequest): Boolean {
+        val newUser = User(
+            userId = generateUUID(),
+            username = request.username,
+            email = request.email,
+            phone = request.phone,
+            passwordHash = hashPassword(request.password),
+            avatarUrl = null,
+            bio = null,
+            registerDate = LocalDateTime.now(),
+            isEmailVerified = false,
+            isPhoneVerified = false,
+            role = request.role
+        )
+        return userRepository.createUserAndReturnUser(newUser)
+    }
+
     private fun String.isPhoneNumber(): Boolean {
         val regex = Regex("""^\d{11}$""")
         return regex.matches(this)
@@ -145,5 +197,14 @@ class AuthService(
     private fun String.isEmail(): Boolean {
         val regex = Regex("""^[^@]+@[^@]+\.[^@]+$""")
         return regex.matches(this)
+    }
+
+    private fun generateUUID(): String {
+        return UUID.randomUUID().toString()
+    }
+
+    private fun verifyPassword(password: String, hashedPassword: String): Boolean {
+        val result = BCrypt.verifyer().verify(password.toCharArray(), hashedPassword)
+        return result.verified
     }
 }

@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.Table
 
 
 object UserAddresses : Table() {
-    private val addressId = varchar("addressId", 50)
+    val addressId = varchar("addressId", 50)
     val userId = varchar("userId", 50) references Users.userId
     val recipientName = varchar("recipientName", 255)
     val phoneNumber = varchar("phoneNumber", 20)

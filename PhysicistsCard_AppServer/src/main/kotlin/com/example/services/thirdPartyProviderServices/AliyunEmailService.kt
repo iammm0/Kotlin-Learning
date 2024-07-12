@@ -4,7 +4,7 @@ import com.aliyuncs.DefaultAcsClient
 import com.aliyuncs.IAcsClient
 import com.aliyuncs.dm.model.v20151123.SingleSendMailRequest
 import com.aliyuncs.profile.DefaultProfile
-import com.example.models.transmissionModels.auth.VerificationType
+import com.example.models.transmissionModels.auth.verificationCodes.VerificationType
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
 import com.example.repositories.auth.VerificationCodeRepository
 import java.util.concurrent.ThreadLocalRandom

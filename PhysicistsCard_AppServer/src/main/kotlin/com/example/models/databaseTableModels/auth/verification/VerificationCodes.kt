@@ -1,6 +1,6 @@
 package com.example.models.databaseTableModels.auth.verification
 
-import com.example.models.transmissionModels.auth.VerificationType
+import com.example.models.transmissionModels.auth.verificationCodes.VerificationType
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.javatime.timestamp
 

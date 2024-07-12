@@ -1,6 +1,7 @@
-package com.example.models.transmissionModels.auth
+package com.example.models.transmissionModels.auth.user
 
 import com.example.utils.LocalDateTimeSerializer
+import io.ktor.server.auth.*
 import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 
@@ -18,4 +19,4 @@ data class User(
     val isEmailVerified: Boolean = false, // 邮箱是否验证，重要的安全和通信特性
     val isPhoneVerified: Boolean = false, // 手机号是否验证，同样重要的安全和通信特性
     val role: Role // 新增角色字段
-)
+) : Principal
