@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.physicistscard.android.MainActivity
+import com.example.physicistscard.android.activities.MainActivity
 import com.example.physicistscard.android.ui.components.buttons.LoginAndRegisterButton
 import com.example.physicistscard.android.ui.components.icons.AppLogo
 import com.example.physicistscard.android.ui.components.navigation.BottomNavItem

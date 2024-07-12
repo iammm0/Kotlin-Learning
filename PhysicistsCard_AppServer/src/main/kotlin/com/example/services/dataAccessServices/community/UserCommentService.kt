@@ -1,43 +1,48 @@
 package com.example.services.dataAccessServices.community
 
-import com.example.models.transmissionModels.community.CommentTargetType
-import com.example.models.transmissionModels.community.UserComment
+import IUserCommentRepository
+import com.example.models.transmissionModels.community.interaction.CommentTargetType
+import com.example.models.transmissionModels.community.interaction.LikeTargetType
+import com.example.models.transmissionModels.community.interaction.UserComment
+import com.example.models.transmissionModels.community.interaction.UserLike
 import com.example.repositories.community.UserCommentRepository
 
 
-class UserCommentService(private val userCommentRepository: UserCommentRepository) {
-    // 根据目标ID和类型获取评论
-    fun getCommentsByTargetId(targetId: String, targetType: CommentTargetType): List<UserComment> {
-        return userCommentRepository.findByTargetId(targetId, targetType)
+class UserCommentService(private val userCommentRepository: IUserCommentRepository) : IUserCommentService {
+    override fun addComment(postId: String, comment: UserComment): Boolean {
+        TODO("Not yet implemented")
     }
 
-    // 获取特定评论的回复
-    fun getRepliesForComment(commentId: String): List<UserComment> {
-        return userCommentRepository.findReplies(commentId)
+    override fun getCommentsByTargetId(targetId: String, targetType: CommentTargetType): List<UserComment> {
+        TODO("Not yet implemented")
     }
 
-    // 添加评论
-    fun addComment(comment: UserComment): UserComment {
-        return userCommentRepository.add(comment)
+    override fun getRepliesForComment(commentId: String): List<UserComment> {
+        TODO("Not yet implemented")
     }
 
-    // 根据ID获取评论
-    fun getCommentById(id: String): UserComment? {
-        return userCommentRepository.findById(id)
+    override fun deleteComment(commentId: String): Boolean {
+        TODO("Not yet implemented")
     }
 
-    // 获取所有评论
-    fun getAllComments(): List<UserComment?> {
-        return userCommentRepository.findAll()
+    override fun add(item: UserComment): UserComment {
+        TODO("Not yet implemented")
     }
 
-    // 更新评论
-    fun updateComment(comment: UserComment): UserComment {
-        return userCommentRepository.update(comment)
+    override fun findById(id: String): UserComment? {
+        TODO("Not yet implemented")
     }
 
-    // 删除评论
-    fun deleteComment(id: String): Boolean {
-        return userCommentRepository.delete(id)
+    override fun findAll(): List<UserComment?> {
+        TODO("Not yet implemented")
     }
+
+    override fun update(item: UserComment): UserComment {
+        TODO("Not yet implemented")
+    }
+
+    override fun delete(id: String): Boolean {
+        TODO("Not yet implemented")
+    }
+
 }

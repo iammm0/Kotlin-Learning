@@ -2,10 +2,10 @@ package com.example.configs
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.example.models.transmissionModels.community.Content
-import com.example.models.transmissionModels.community.ImageContent
-import com.example.models.transmissionModels.community.TextContent
-import com.example.models.transmissionModels.community.VideoContent
+import com.example.models.transmissionModels.community.post.Content
+import com.example.models.transmissionModels.community.post.ImageContent
+import com.example.models.transmissionModels.community.post.TextContent
+import com.example.models.transmissionModels.community.post.VideoContent
 import com.typesafe.config.ConfigFactory
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*

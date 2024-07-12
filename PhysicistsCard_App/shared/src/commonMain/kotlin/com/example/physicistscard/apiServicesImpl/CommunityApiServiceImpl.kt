@@ -1,10 +1,10 @@
 package com.example.physicistscard.apiServicesImpl
 
+import Post
+import UserComment
+import UserFavorite
+import UserLike
 import com.example.physicistscard.apiServices.CommunityApiService
-import com.example.physicistscard.transmissionModels.community.interaction.comment.UserComment
-import com.example.physicistscard.transmissionModels.community.interaction.favorite.UserFavorite
-import com.example.physicistscard.transmissionModels.community.interaction.like.UserLike
-import com.example.physicistscard.transmissionModels.community.post.Post
 import io.ktor.client.*
 
 class CommunityApiServiceImpl(private val client: HttpClient) : CommunityApiService {
@@ -65,5 +65,4 @@ class CommunityApiServiceImpl(private val client: HttpClient) : CommunityApiServ
     override suspend fun getPostStats(postId: String): Map<String, Any> {
         TODO("Not yet implemented")
     }
-
 }

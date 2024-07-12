@@ -2,8 +2,8 @@ package com.example.repositories.community
 
 import IUserCommentRepository
 import com.example.models.databaseTableModels.community.post.mPost.Posts.updatedAt
-import com.example.models.transmissionModels.community.CommentTargetType
-import com.example.models.transmissionModels.community.UserComment
+import com.example.models.transmissionModels.community.interaction.CommentTargetType
+import com.example.models.transmissionModels.community.interaction.UserComment
 import com.example.models.databaseTableModels.community.interaction.comment.UserComments
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

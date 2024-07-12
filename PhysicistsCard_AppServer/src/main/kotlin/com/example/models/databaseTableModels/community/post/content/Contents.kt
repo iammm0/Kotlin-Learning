@@ -1,6 +1,6 @@
 package com.example.models.databaseTableModels.community.post.content
 
-import com.example.models.transmissionModels.community.ContentType
+import com.example.models.transmissionModels.community.post.ContentType
 import org.jetbrains.exposed.sql.Table
 
 object Contents : Table("Contents") {

@@ -2,7 +2,7 @@ package com.example.repositories.community
 
 import com.example.models.databaseTableModels.community.post.content.*
 import com.example.models.databaseTableModels.community.post.mPost.*
-import com.example.models.transmissionModels.community.*
+import com.example.models.transmissionModels.community.post.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -57,7 +57,7 @@ class PostRepository : IPostRepository {
         // }
 
         if (tagId != null) {
-            com.example.models.databaseTableModels.community.post.mPost.PostTagRelations.deleteWhere {
+            PostTagRelations.deleteWhere {
                 (PostTagRelations.postId eq intPostId) and (PostTagRelations.tagId eq tagId)
             } > 0  // 返回 Boolean 类型，表示是否成功删除
         } else {
@@ -66,14 +66,14 @@ class PostRepository : IPostRepository {
     }
 
     override fun findByTag(tag: String): List<Post> = transaction {
-        (com.example.models.databaseTableModels.community.post.mPost.PostTags innerJoin com.example.models.databaseTableModels.community.post.mPost.PostTagRelations innerJoin com.example.models.databaseTableModels.community.post.mPost.Posts)
+        (PostTags innerJoin com.example.models.databaseTableModels.community.post.mPost.PostTagRelations innerJoin com.example.models.databaseTableModels.community.post.mPost.Posts)
             .selectAll().where { PostTags.name eq tag }
             .map { it.toPost() }
             .distinctBy { it.postId }
     }
 
     override fun add(item: Post): Post = transaction {
-        val postId = com.example.models.databaseTableModels.community.post.mPost.Posts.insert {
+        val postId = Posts.insert {
             it[userId] = item.userId
             it[title] = item.title
             it[createdAt] = item.createdAt
@@ -85,7 +85,7 @@ class PostRepository : IPostRepository {
     }
 
     override fun findById(id: String): Post? = transaction {
-        com.example.models.databaseTableModels.community.post.mPost.Posts.selectAll().where { Posts.id eq id.toInt() }
+        Posts.selectAll().where { Posts.id eq id.toInt() }
             .mapNotNull { it.toPost() }
             .singleOrNull()
     }

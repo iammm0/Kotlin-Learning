@@ -1,8 +1,6 @@
 package com.example.physicistscard.transmissionModels.store.order
 
 
-import com.example.models.databaseTableModels.store.order.OrderItem
-import com.example.models.databaseTableModels.store.order.OrderStatus
 import com.example.physicistscard.transmissionModels.store.payment.PaymentInfo
 import com.example.physicistscard.transmissionModels.store.shipping.ShippingInfo
 import kotlinx.datetime.LocalDateTime

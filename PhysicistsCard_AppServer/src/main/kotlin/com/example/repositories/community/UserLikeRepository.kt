@@ -1,7 +1,7 @@
 package com.example.repositories.community
 
-import com.example.models.transmissionModels.community.LikeTargetType
-import com.example.models.transmissionModels.community.UserLike
+import com.example.models.transmissionModels.community.interaction.LikeTargetType
+import com.example.models.transmissionModels.community.interaction.UserLike
 import com.example.models.databaseTableModels.community.interaction.like.UserLikes
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

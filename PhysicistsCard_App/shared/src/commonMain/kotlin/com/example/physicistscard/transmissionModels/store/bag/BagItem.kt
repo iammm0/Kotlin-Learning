@@ -1,4 +1,4 @@
-package com.example.models.databaseTableModels.store.bag
+package com.example.physicistscard.transmissionModels.store.bag
 
 data class BagItem(
     val productId: String,

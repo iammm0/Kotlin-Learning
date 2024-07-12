@@ -1,23 +1,22 @@
 package com.example.routes.community
 
-import com.example.models.transmissionModels.community.*
-import com.example.services.dataAccessServices.community.PostService
-import com.example.services.dataAccessServices.community.UserCommentService
-import com.example.services.dataAccessServices.community.UserFavoriteService
-import com.example.services.dataAccessServices.community.UserLikeService
+import com.example.models.transmissionModels.community.interaction.CommentTargetType
+import com.example.models.transmissionModels.community.interaction.FavoriteTargetType
+import com.example.models.transmissionModels.community.interaction.LikeTargetType
+import com.example.services.dataAccessServices.community.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.Json
+
 
 fun Application.communityRoutes(
-    postService: PostService,
-    commentService: UserCommentService,
-    likeService: UserLikeService,
-    favoriteService: UserFavoriteService
+    postService: IPostService,
+    commentService: IUserCommentService,
+    likeService: IUserLikeService,
+    favoriteService: IUserFavoriteService
 ) {
     routing {
         authenticate {
@@ -33,43 +32,15 @@ fun Application.communityRoutes(
                 }
                 // 获取社区中特定推送的详情
                 get("/{postId}") {
-                    val postId = call.parameters["postId"] ?: return@get call.respond(HttpStatusCode.BadRequest, "无效的推送ID")
-                    try {
-                        val post = postService.getPostById(postId)
-                        if (post != null) {
-                            call.respond(HttpStatusCode.OK, post)
-                        } else {
-                            call.respond(HttpStatusCode.NotFound, "未找到推送")
-                        }
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.InternalServerError, "获取推送时发生错误: ${e.localizedMessage}")
-                    }
+
                 }
                 // 在社区中发表推送
                 post("/") {
-                    try {
-                        val requestBody = call.receiveText()
-                        val post = Json.decodeFromString<Post>(requestBody)
-                        val newPost = postService.addPost(post)
-                        call.respond(HttpStatusCode.Created, newPost)
-                    } catch (e: Exception) {
-                        println("Error deserializing Post: ${e.message}")
-                        call.respond(HttpStatusCode.BadRequest, "数据格式无效: ${e.localizedMessage}")
-                    }
+
                 }
                 // 更新特定推送的内容
                 put("/{postId}") {
-                    val postId = call.parameters["postId"] ?: return@put call.respond(HttpStatusCode.BadRequest, "无效的推送ID")
-                    try {
-                        val requestBody = call.receiveText()
-                        println("Received request body: $requestBody")
-                        val updatePost = Json.decodeFromString<Post>(requestBody)
-                        val updated = postService.updatePost(updatePost.copy(postId = postId))
-                        call.respond(HttpStatusCode.OK, updated)
-                    } catch (e: Exception) {
-                        println("Error deserializing Post: ${e.message}")
-                        call.respond(HttpStatusCode.BadRequest, "数据格式无效: ${e.localizedMessage}")
-                    }
+
                 }
                 // 删除特定推送
                 delete("/{postId}") {
@@ -91,17 +62,7 @@ fun Application.communityRoutes(
             route("/community/comments/{postId}") {
                 // 在特定推送下发表评论
                 post("/") {
-                    val postId = call.parameters["postId"] ?: return@post call.respond(HttpStatusCode.BadRequest, "无效的推送ID")
-                    try {
-                        val requestBody = call.receiveText()
-                        println("Received request body: $requestBody")
-                        val comment = Json.decodeFromString<UserComment>(requestBody)
-                        val newComment = commentService.addComment(comment.copy(targetId = postId))
-                        call.respond(HttpStatusCode.Created, newComment)
-                    } catch (e: Exception) {
-                        println("Error deserializing UserComment: ${e.message}")
-                        call.respond(HttpStatusCode.InternalServerError, "发表评论时发生错误: ${e.localizedMessage}")
-                    }
+
                 }
                 // 获取特定推送下的所有评论
                 get("/") {
@@ -133,17 +94,7 @@ fun Application.communityRoutes(
             route("/community/posts/{postId}") {
                 // 获取特定推送详情
                 get("/") {
-                    val postId = call.parameters["postId"] ?: return@get call.respond(HttpStatusCode.BadRequest, "无效的推送ID")
-                    try {
-                        val post = postService.getPostById(postId)
-                        if (post != null) {
-                            call.respond(HttpStatusCode.OK, post)
-                        } else {
-                            call.respond(HttpStatusCode.NotFound, "未找到推送")
-                        }
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.InternalServerError, "获取推送详情时发生错误: ${e.localizedMessage}")
-                    }
+
                 }
                 // 点赞特定推送
                 post("/like") {

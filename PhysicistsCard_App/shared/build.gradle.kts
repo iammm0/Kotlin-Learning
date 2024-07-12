@@ -37,6 +37,7 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.ktor.client.auth)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)

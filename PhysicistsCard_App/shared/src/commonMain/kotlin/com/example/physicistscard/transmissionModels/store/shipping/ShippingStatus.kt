@@ -1,4 +1,4 @@
-package com.example.models.databaseTableModels.store.shipping
+package com.example.physicistscard.transmissionModels.store.shipping
 
 enum class ShippingStatus {
     PROCESSING, // 处理中

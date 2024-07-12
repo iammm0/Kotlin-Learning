@@ -1,4 +1,4 @@
-package com.example.models.databaseTableModels.store.order
+package com.example.physicistscard.transmissionModels.store.order
 
 // 订单状态
 enum class OrderStatus {

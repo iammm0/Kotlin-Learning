@@ -1,5 +1,3 @@
-package com.example.physicistscard.transmissionModels.community.interaction.favorite
-
 import kotlinx.serialization.Serializable
 
 @Serializable

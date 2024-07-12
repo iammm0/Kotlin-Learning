@@ -1,8 +1,8 @@
 package com.example.models.databaseTableModels.store.payment
 
 import com.example.models.databaseTableModels.store.order.Orders
-import com.example.models.transmissionModels.store.PaymentMethod
-import com.example.models.transmissionModels.store.PaymentStatus
+import com.example.models.transmissionModels.store.payment.PaymentMethod
+import com.example.models.transmissionModels.store.payment.PaymentStatus
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 

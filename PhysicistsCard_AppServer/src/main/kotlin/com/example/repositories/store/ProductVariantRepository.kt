@@ -1,6 +1,6 @@
 package com.example.repositories.store
 
-import com.example.models.transmissionModels.store.ProductVariant
+import com.example.models.transmissionModels.store.product.ProductVariant
 import com.example.models.databaseTableModels.store.product.ProductVariants
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

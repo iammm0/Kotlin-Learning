@@ -1,4 +1,4 @@
-package com.example.models.databaseTableModels.store.payment
+package com.example.physicistscard.transmissionModels.store.payment
 
 // 支付方式
 enum class PaymentMethod {

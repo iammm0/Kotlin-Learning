@@ -1,10 +1,10 @@
 package com.example.repositories.store
 
 import com.example.models.databaseTableModels.store.product.*
-import com.example.models.transmissionModels.store.Era
-import com.example.models.transmissionModels.store.Physicist
-import com.example.models.transmissionModels.store.PhysicsBranch
-import com.example.models.transmissionModels.store.Product
+import com.example.models.transmissionModels.store.product.Era
+import com.example.models.transmissionModels.store.product.Physicist
+import com.example.models.transmissionModels.store.product.PhysicsBranch
+import com.example.models.transmissionModels.store.product.Product
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction

@@ -1,7 +1,7 @@
 package com.example.repositories.community
 
-import com.example.models.transmissionModels.community.FavoriteTargetType
-import com.example.models.transmissionModels.community.UserFavorite
+import com.example.models.transmissionModels.community.interaction.FavoriteTargetType
+import com.example.models.transmissionModels.community.interaction.UserFavorite
 import com.example.models.databaseTableModels.community.interaction.favorite.UserFavorites
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

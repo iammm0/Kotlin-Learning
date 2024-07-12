@@ -1,4 +1,4 @@
-package com.example.models.databaseTableModels.store.order
+package com.example.physicistscard.transmissionModels.store.order
 
 // 订单内商品详情
 data class OrderItem(

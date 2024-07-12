@@ -1,4 +1,4 @@
-package com.example.models.databaseTableModels.store.payment
+package com.example.physicistscard.transmissionModels.store.payment
 
 enum class PaymentStatus {
     PENDING,

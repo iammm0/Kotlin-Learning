@@ -1,6 +1,6 @@
 package com.example.models.databaseTableModels.community.interaction.favorite
 
-import com.example.models.transmissionModels.community.FavoriteTargetType
+import com.example.models.transmissionModels.community.interaction.FavoriteTargetType
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 

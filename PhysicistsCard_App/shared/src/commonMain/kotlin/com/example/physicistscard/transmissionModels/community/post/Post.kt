@@ -1,5 +1,3 @@
-package com.example.physicistscard.transmissionModels.community.post
-
 import com.example.physicistscard.transmissionModels.community.content.Content
 import com.example.physicistscard.utils.LocalDateTimeSerializer
 import kotlinx.datetime.LocalDateTime
@@ -18,19 +16,3 @@ data class Post(
     val category: String?, // 分类
     val tags: List<String> // 标签
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

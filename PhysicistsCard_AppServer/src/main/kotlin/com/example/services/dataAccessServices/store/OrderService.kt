@@ -1,10 +1,11 @@
 package com.example.services.dataAccessServices.store
 
-import com.example.models.transmissionModels.store.Order
-import com.example.models.transmissionModels.store.OrderStatus
+import com.example.models.transmissionModels.store.order.Order
+import com.example.models.transmissionModels.store.order.OrderStatus
+import com.example.repositories.store.IOrderRepository
 import com.example.repositories.store.OrderRepository
 
-class OrderService(private val orderRepository: OrderRepository) : IOrderService {
+class OrderService(private val orderRepository: IOrderRepository) : IOrderService {
 
     override fun createOrder(order: Order): Order {
         // 这里可能需要在创建订单前进行一些业务逻辑检查
@@ -39,5 +40,9 @@ class OrderService(private val orderRepository: OrderRepository) : IOrderService
     override fun changeOrderStatus(orderId: String, newStatus: OrderStatus): Boolean {
         // 改变订单状态可能需要更复杂的业务逻辑处理，例如发送通知或更新库存
         return orderRepository.updateOrderStatus(orderId.toInt(), newStatus) != null
+    }
+
+    override fun getOrdersByMerchant(merchantId: String): List<Order> {
+        TODO("Not yet implemented")
     }
 }

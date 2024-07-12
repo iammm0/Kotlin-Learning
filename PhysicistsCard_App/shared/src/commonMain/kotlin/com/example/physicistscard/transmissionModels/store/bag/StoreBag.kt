@@ -1,4 +1,4 @@
-package com.example.models.databaseTableModels.store.bag
+package com.example.physicistscard.transmissionModels.store.bag
 
 
 // 用于临时存储用户想要购买的商品信息

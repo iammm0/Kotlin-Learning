@@ -1,7 +1,5 @@
 package com.example.physicistscard.transmissionModels.store.payment
 
-import com.example.models.databaseTableModels.store.payment.PaymentMethod
-import com.example.models.databaseTableModels.store.payment.PaymentStatus
 import kotlinx.datetime.LocalDateTime
 
 // 支付信息

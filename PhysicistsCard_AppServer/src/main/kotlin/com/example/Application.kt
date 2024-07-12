@@ -7,25 +7,28 @@ package com.example
 // 配置数据库连接池与缓存
 // 编写单元测试与集成测试
 
+import IAuthTokenRepository
+import IUserCommentRepository
+import IUserRepository
 import com.example.configs.configurations
+import com.example.repositories.auth.IVerificationCodeRepository
 import com.example.repositories.auth.TokenRepository
-import com.example.repositories.auth.TokenCleanupService
+import com.example.repositories.auth.UserRepository
+import com.example.services.TokenCleanupService
 import com.example.routes.auth.authRoutes
 import com.example.routes.community.communityRoutes
 import com.example.routes.store.storeRoutes
-import com.example.repositories.auth.VerificationCodesCleanupService
+import com.example.services.VerificationCodesCleanupService
 import com.example.repositories.auth.VerificationCodeRepository
-import com.example.repositories.community.PostRepository
-import com.example.repositories.community.UserCommentRepository
-import com.example.repositories.community.UserFavoriteRepository
-import com.example.repositories.community.UserLikeRepository
-import com.example.repositories.store.OrderRepository
-import com.example.repositories.store.ProductRepository
-import com.example.services.dataAccessServices.auth.JwtTokenService
-import com.example.services.dataAccessServices.community.PostService
-import com.example.services.dataAccessServices.community.UserCommentService
-import com.example.services.dataAccessServices.community.UserFavoriteService
-import com.example.services.dataAccessServices.community.UserLikeService
+import com.example.repositories.community.*
+import com.example.repositories.store.*
+import com.example.services.dataAccessServices.auth.AuthService
+import com.example.services.dataAccessServices.auth.IAuthService
+import com.example.services.dataAccessServices.auth.ITokenService
+import com.example.services.dataAccessServices.auth.JwtITokenService
+import com.example.services.dataAccessServices.community.*
+import com.example.services.dataAccessServices.store.IOrderService
+import com.example.services.dataAccessServices.store.IProductService
 import com.example.services.dataAccessServices.store.OrderService
 import com.example.services.dataAccessServices.store.ProductService
 import com.example.utils.DatabaseConfig
@@ -56,42 +59,45 @@ fun Application.module() {
     val jwtIssuer = config.getString("ktor.security.jwt.issuer")
     val jwtValidityInMs = config.getLong("ktor.security.jwt.validityInMs")
 
-    val postRepository = PostRepository()
-    val verificationCodeRepository = VerificationCodeRepository()
-    val userCommentRepository = UserCommentRepository()
-    val userLikeRepository = UserLikeRepository()
-    val userFavoriteRepository = UserFavoriteRepository()
-    val productRepository = ProductRepository()
-    val orderRepository = OrderRepository()
-    val tokenRepository = TokenRepository()
+    val userRepository: IUserRepository = UserRepository()
+    val postRepository: IPostRepository = PostRepository()
+    val verificationCodeRepository: IVerificationCodeRepository = VerificationCodeRepository()
+    val userCommentRepository: IUserCommentRepository = UserCommentRepository()
+    val userLikeRepository: IUserLikeRepository = UserLikeRepository()
+    val productRepository: IProductRepository = ProductRepository()
+    val paymentInfoRepository: IPaymentInfoRepository = PaymentInfoRepository()
+    val shippingInfoRepository: IShippingInfoRepository  = ShippingInfoRepository()
+    val orderRepository: IOrderRepository = OrderRepository(paymentInfoRepository, shippingInfoRepository)
+    val tokenRepository: IAuthTokenRepository = TokenRepository()
 
     val verificationCodesCleanupService = VerificationCodesCleanupService(verificationCodeRepository)
-    val postService = PostService(postRepository)
-    val commentService = UserCommentService(userCommentRepository)
-    val likeService = UserLikeService(userLikeRepository)
-    val favoriteRepository = UserFavoriteService(userFavoriteRepository)
-    val productService = ProductService(productRepository)
-    val orderService = OrderService(orderRepository)
-    val tokenService = JwtTokenService(jwtSecret, jwtIssuer, jwtValidityInMs)
+    val postService: IPostService = PostService(postRepository)
+    val commentService: IUserCommentService = UserCommentService(userCommentRepository)
+    val likeService: IUserLikeService = UserLikeService(userLikeRepository)
+    val favoriteService: IUserFavoriteService = UserFavoriteService()
+    val productService: IProductService = ProductService(productRepository)
+    val orderService: IOrderService = OrderService(orderRepository)
+    val tokenService: ITokenService = JwtITokenService(jwtSecret, jwtIssuer, jwtValidityInMs)
     val tokenCleanupService = TokenCleanupService(tokenRepository)
+    val authService: IAuthService = AuthService(tokenService, userRepository, verificationCodeRepository, tokenRepository)
 
     // 启动应用...
     verificationCodesCleanupService.startCleanupJob()
     tokenCleanupService.startCleanupJob()
 
-    authRoutes(tokenService)
+    authRoutes(authService)
     communityRoutes(
         postService,
         commentService,
         likeService,
-        favoriteRepository
+        favoriteService
     )
     storeRoutes(
         productService,
         orderService,
         commentService,
         likeService,
-        favoriteRepository
+        favoriteService
     )
     // 应用关闭前
     verificationCodesCleanupService.stopCleanupJob()

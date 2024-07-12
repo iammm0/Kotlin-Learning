@@ -1,9 +1,11 @@
 package com.example.services.dataAccessServices.community
 
-import com.example.models.transmissionModels.community.Post
+import com.example.models.transmissionModels.community.post.Content
+import com.example.models.transmissionModels.community.post.Post
+import com.example.repositories.community.IPostRepository
 import com.example.repositories.community.PostRepository
 
-class PostService(private val postRepository: PostRepository) {
+class PostService(private val postRepository: IPostRepository) : IPostService {
     // 根据作者ID获取帖子
     fun getPostsByAuthorId(authorId: String): List<Post> {
         return postRepository.findByAuthorId(authorId)
@@ -39,18 +41,46 @@ class PostService(private val postRepository: PostRepository) {
         return postRepository.findById(id)
     }
 
-    // 获取所有帖子
-    fun getAllPosts(): List<Post?> {
-        return postRepository.findAll()
+    override fun createPost(
+        userId: String,
+        title: String,
+        contents: List<Content>,
+        category: String?,
+        tags: List<String>
+    ): Post {
+        TODO("Not yet implemented")
     }
+
+    override fun updatePost(
+        postId: String,
+        title: String?,
+        contents: List<Content>?,
+        category: String?,
+        tags: List<String>?
+    ): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun getAllPosts(): List<Post> {
+        TODO("Not yet implemented")
+    }
+
+    override fun deletePost(postId: String): Boolean {
+        TODO("Not yet implemented")
+    }
+
 
     // 更新帖子
     fun updatePost(post: Post): Post {
         return postRepository.update(post)
     }
 
-    // 删除帖子
-    fun deletePost(id: String): Boolean {
-        return postRepository.delete(id)
+
+    override fun findPostById(postId: String): Post? {
+        TODO("Not yet implemented")
+    }
+
+    override fun listPostsByUserId(userId: String): List<Post> {
+        TODO("Not yet implemented")
     }
 }

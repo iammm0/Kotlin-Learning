@@ -1,10 +1,9 @@
 package com.example.physicistscard.apiServices
 
-
-import com.example.physicistscard.transmissionModels.community.interaction.comment.UserComment
-import com.example.physicistscard.transmissionModels.community.interaction.favorite.UserFavorite
-import com.example.physicistscard.transmissionModels.community.interaction.like.UserLike
-import com.example.physicistscard.transmissionModels.community.post.Post
+import Post
+import UserComment
+import UserFavorite
+import UserLike
 
 interface CommunityApiService {
     // Post APIs

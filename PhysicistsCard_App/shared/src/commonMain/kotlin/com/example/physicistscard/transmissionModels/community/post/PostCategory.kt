@@ -1,5 +1,3 @@
-package com.example.physicistscard.transmissionModels.community.post
-
 import kotlinx.serialization.Serializable
 
 @Serializable

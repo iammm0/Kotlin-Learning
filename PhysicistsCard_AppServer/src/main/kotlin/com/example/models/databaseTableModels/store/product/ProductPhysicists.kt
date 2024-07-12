@@ -1,6 +1,6 @@
 package com.example.models.databaseTableModels.store.product
 
-import com.example.models.transmissionModels.store.Physicist
+import com.example.models.transmissionModels.store.product.Physicist
 import org.jetbrains.exposed.sql.Table
 
 object ProductPhysicists : Table("ProductPhysicists") {

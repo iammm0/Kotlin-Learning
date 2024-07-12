@@ -1,7 +1,7 @@
 package com.example.models.databaseTableModels.store.shipping
 
 import com.example.models.databaseTableModels.store.order.Orders
-import com.example.models.transmissionModels.store.ShippingStatus
+import com.example.models.transmissionModels.store.shipping.ShippingStatus
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 

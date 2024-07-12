@@ -1,5 +1,8 @@
 package com.example.physicistscard.transmissionModels.auth.user
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class UserAddress(
     val addressId: String,
     val userId: String,

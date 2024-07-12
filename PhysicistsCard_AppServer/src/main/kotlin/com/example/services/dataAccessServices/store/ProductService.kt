@@ -1,9 +1,9 @@
 package com.example.services.dataAccessServices.store
 
-import com.example.models.transmissionModels.store.Product
-import com.example.repositories.store.ProductRepository
+import com.example.models.transmissionModels.store.product.Product
+import com.example.repositories.store.IProductRepository
 
-class ProductService(private val productRepository: ProductRepository) : IProductService {
+class ProductService(private val productRepository: IProductRepository) : IProductService {
 
     override fun addProduct(product: Product): Product {
         return productRepository.add(product)
@@ -14,7 +14,7 @@ class ProductService(private val productRepository: ProductRepository) : IProduc
     }
 
     override fun getAllProducts(): List<Product> {
-        return productRepository.findAll()
+        TODO("Not yet implemented")
     }
 
     override fun updateProduct(product: Product): Product {

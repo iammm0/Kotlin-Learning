@@ -1,6 +1,6 @@
 package com.example.models.databaseTableModels.community.interaction.like
 
-import com.example.models.transmissionModels.community.LikeTargetType
+import com.example.models.transmissionModels.community.interaction.LikeTargetType
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 

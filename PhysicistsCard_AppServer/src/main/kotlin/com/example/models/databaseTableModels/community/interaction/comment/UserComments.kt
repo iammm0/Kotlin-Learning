@@ -1,6 +1,6 @@
 package com.example.models.databaseTableModels.community.interaction.comment
 
-import com.example.models.transmissionModels.community.CommentTargetType
+import com.example.models.transmissionModels.community.interaction.CommentTargetType
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 

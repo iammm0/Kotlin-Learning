@@ -1,6 +1,6 @@
 package com.example.models.databaseTableModels.store.order
 
-import com.example.models.transmissionModels.store.OrderStatus
+import com.example.models.transmissionModels.store.order.OrderStatus
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 

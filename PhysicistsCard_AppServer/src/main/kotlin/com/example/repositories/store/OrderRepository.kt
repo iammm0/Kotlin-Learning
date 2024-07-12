@@ -1,19 +1,19 @@
 package com.example.repositories.store
 
 import com.example.models.databaseTableModels.store.order.*
-import com.example.models.transmissionModels.store.Order
-import com.example.models.transmissionModels.store.OrderHistory
-import com.example.models.transmissionModels.store.OrderItem
-import com.example.models.transmissionModels.store.OrderStatus
+import com.example.models.transmissionModels.store.order.Order
+import com.example.models.transmissionModels.store.order.OrderHistory
+import com.example.models.transmissionModels.store.order.OrderItem
+import com.example.models.transmissionModels.store.order.OrderStatus
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
 
-class OrderRepository : IOrderRepository{
-
-    private val paymentInfoRepository = PaymentInfoRepository()
-    private val shippingInfoRepository = ShippingInfoRepository()
+class OrderRepository(
+    private val paymentInfoRepository: IPaymentInfoRepository,
+    private val shippingInfoRepository: IShippingInfoRepository,
+) : IOrderRepository{
 
     override fun findByCustomerId(customerId: Int): List<Order?> = transaction {
         Orders.selectAll().where { Orders.customerId eq customerId }

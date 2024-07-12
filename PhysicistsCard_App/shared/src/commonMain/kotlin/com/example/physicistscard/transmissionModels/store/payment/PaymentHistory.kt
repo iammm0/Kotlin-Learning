@@ -1,6 +1,5 @@
 package com.example.physicistscard.transmissionModels.store.payment
 
-import com.example.models.databaseTableModels.store.payment.PaymentStatus
 import kotlinx.datetime.LocalDateTime
 
 data class PaymentHistory(

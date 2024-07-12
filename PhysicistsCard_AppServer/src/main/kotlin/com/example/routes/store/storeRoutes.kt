@@ -1,17 +1,14 @@
 package com.example.routes.store
 
-import com.example.models.transmissionModels.community.CommentTargetType
-import com.example.models.transmissionModels.community.UserComment
-import com.example.models.transmissionModels.community.FavoriteTargetType
-import com.example.models.transmissionModels.community.LikeTargetType
-import com.example.models.transmissionModels.store.BagItem
-import com.example.models.transmissionModels.store.Order
-import com.example.models.transmissionModels.store.PaymentInfo
-import com.example.services.dataAccessServices.community.UserCommentService
-import com.example.services.dataAccessServices.community.UserFavoriteService
-import com.example.services.dataAccessServices.community.UserLikeService
-import com.example.services.dataAccessServices.store.OrderService
-import com.example.services.dataAccessServices.store.ProductService
+import com.example.models.transmissionModels.community.interaction.CommentTargetType
+import com.example.models.transmissionModels.community.interaction.FavoriteTargetType
+import com.example.models.transmissionModels.community.interaction.LikeTargetType
+import com.example.models.transmissionModels.store.bag.BagItem
+import com.example.models.transmissionModels.store.order.Order
+import com.example.models.transmissionModels.store.payment.PaymentInfo
+import com.example.services.dataAccessServices.community.*
+import com.example.services.dataAccessServices.store.IOrderService
+import com.example.services.dataAccessServices.store.IProductService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -20,11 +17,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Application.storeRoutes(
-    productService: ProductService,
-    orderService: OrderService,
-    commentService: UserCommentService,
-    likeService: UserLikeService,
-    favoriteService: UserFavoriteService
+    productService: IProductService,
+    orderService: IOrderService,
+    commentService: IUserCommentService,
+    likeService: IUserLikeService,
+    favoriteService: IUserFavoriteService
 ) {
     routing {
 
@@ -183,14 +180,7 @@ fun Application.storeRoutes(
             route("/store/products/{productId}") {
                 // 发表评论
                 post("/comments") {
-                    val productId = call.parameters["productId"] ?: return@post call.respond(HttpStatusCode.BadRequest, "无效的产品ID")
-                    try {
-                        val comment = call.receive<UserComment>()
-                        val newComment = commentService.addComment(comment.copy(targetId = productId, targetType = CommentTargetType.PRODUCT))
-                        call.respond(HttpStatusCode.Created, newComment)
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.BadRequest, "发表评论失败: ${e.localizedMessage}")
-                    }
+
                 }
                 // 获取所有评论
                 get("/comments") {

@@ -1,5 +1,3 @@
-package com.example.physicistscard.transmissionModels.community.interaction.like
-
 import com.example.physicistscard.utils.LocalDateTimeSerializer
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
@@ -11,7 +9,7 @@ data class UserLike(
     val likeId: String,
     val userId: String, // 进行点赞的用户ID
     val targetId: String, // 被点赞的目标对象ID，可以是帖子或商品ID
-    val targetType: com.example.physicistscard.transmissionModels.community.interaction.like.LikeTargetType, // 明确点赞的目标类型，有助于区分是帖子还是商品
+    val targetType: LikeTargetType, // 明确点赞的目标类型，有助于区分是帖子还是商品
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime // 点赞发生的时间，便于分析用户行为模式
 )

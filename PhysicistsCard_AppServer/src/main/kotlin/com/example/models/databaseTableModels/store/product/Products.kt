@@ -1,8 +1,8 @@
 package com.example.models.databaseTableModels.store.product
 
-import com.example.models.transmissionModels.store.BundleType
-import com.example.models.transmissionModels.store.Era
-import com.example.models.transmissionModels.store.PhysicsBranch
+import com.example.models.transmissionModels.store.product.BundleType
+import com.example.models.transmissionModels.store.product.Era
+import com.example.models.transmissionModels.store.product.PhysicsBranch
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.javatime.date
 

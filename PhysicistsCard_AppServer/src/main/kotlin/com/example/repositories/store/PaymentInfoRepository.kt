@@ -1,7 +1,7 @@
 package com.example.repositories.store
 
-import com.example.models.transmissionModels.store.PaymentInfo
-import com.example.models.transmissionModels.store.PaymentStatus
+import com.example.models.transmissionModels.store.payment.PaymentInfo
+import com.example.models.transmissionModels.store.payment.PaymentStatus
 import com.example.models.databaseTableModels.store.payment.PaymentInfos
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

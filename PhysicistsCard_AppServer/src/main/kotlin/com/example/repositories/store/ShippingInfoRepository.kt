@@ -1,9 +1,9 @@
 package com.example.repositories.store
 
-import com.example.models.transmissionModels.store.ShippingInfo
+import com.example.models.transmissionModels.store.shipping.ShippingInfo
 import com.example.models.databaseTableModels.store.shipping.ShippingInfos
 import com.example.models.databaseTableModels.store.shipping.ShippingInfos.shippingId
-import com.example.models.transmissionModels.store.ShippingStatus
+import com.example.models.transmissionModels.store.shipping.ShippingStatus
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
