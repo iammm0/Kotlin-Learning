@@ -32,4 +32,13 @@ interface IUserFavoriteService : Repository<UserFavorite, String> {
      * @return 收藏列表
      */
     fun getFavoritesByUserId(userId: String): List<UserFavorite>
+
+    /**
+     * 统计特定目标对象的收藏数
+     *
+     * @param targetId 目标对象ID
+     * @param targetType 目标对象类型
+     * @return 收藏数
+     */
+    fun countFavoritesByTargetId(targetId: String, targetType: FavoriteTargetType): Int
 }

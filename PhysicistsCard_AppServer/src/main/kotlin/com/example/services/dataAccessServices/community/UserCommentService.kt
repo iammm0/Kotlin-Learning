@@ -25,6 +25,10 @@ class UserCommentService(private val userCommentRepository: IUserCommentReposito
         TODO("Not yet implemented")
     }
 
+    override fun countCommentsByTargetId(targetId: String, targetType: CommentTargetType): Int {
+        TODO("Not yet implemented")
+    }
+
     override fun add(item: UserComment): UserComment {
         TODO("Not yet implemented")
     }

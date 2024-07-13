@@ -38,5 +38,14 @@ interface IUserCommentService : Repository<UserComment, String> {
      * @return 删除评论是否成功
      */
     fun deleteComment(commentId: String): Boolean
+
+    /**
+     * 统计特定目标对象的评论数
+     *
+     * @param targetId 目标对象ID
+     * @param targetType 目标对象类型（推送或评论）
+     * @return 评论数
+     */
+    fun countCommentsByTargetId(targetId: String, targetType: CommentTargetType): Int
 }
 

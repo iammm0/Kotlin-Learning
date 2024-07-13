@@ -18,6 +18,10 @@ class UserFavoriteService : IUserFavoriteService {
         TODO("Not yet implemented")
     }
 
+    override fun countFavoritesByTargetId(targetId: String, targetType: FavoriteTargetType): Int {
+        TODO("Not yet implemented")
+    }
+
     override fun add(item: UserFavorite): UserFavorite {
         TODO("Not yet implemented")
     }
