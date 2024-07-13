@@ -105,7 +105,6 @@ PhysicistsCard_AppServer 项目建立已经大致有6个月
 - `POST /store/merchant/coupons`
 - `GET /store/merchant/coupons`
 
-这些字段涵盖了商家对商品和订单的管理、支付和物流信息的处理以及数据分析和促销活动的管理，基本满足PhysCard的需求。
 
 ### 超级管理员API路由字段
 
@@ -118,7 +117,6 @@ PhysicistsCard_AppServer 项目建立已经大致有6个月
 - `GET /admin/super/users`
 - `DELETE /admin/super/users/{userId}`
 
-这些字段涵盖了超级管理员对管理员和用户的管理功能，基本满足PhysCard的需求。
 
 ### 商城系统管理员API路由字段
 
@@ -130,7 +128,6 @@ PhysicistsCard_AppServer 项目建立已经大致有6个月
 - `GET /admin/store/orders`
 - `PUT /admin/store/orders/{orderId}/status`
 
-这些字段涵盖了商城系统管理员对商品和订单的审核和管理功能，基本满足PhysCard的需求。
 
 ### 社区系统管理员API路由字段
 
@@ -143,4 +140,3 @@ PhysicistsCard_AppServer 项目建立已经大致有6个月
 - `GET /admin/community/likes`
 - `DELETE /admin/community/likes/{likeId}`
 
-这些字段涵盖了社区系统管理员对社区内容的审核和管理功能，基本满足PhysCard的需求。
