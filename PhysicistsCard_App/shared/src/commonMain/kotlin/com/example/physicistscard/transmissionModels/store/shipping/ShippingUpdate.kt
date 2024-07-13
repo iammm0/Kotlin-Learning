@@ -1,6 +1,5 @@
 package com.example.physicistscard.transmissionModels.store.shipping
 
-import com.example.physicistscard.transmissionModels.store.shipping.ShippingStatus
 import kotlinx.datetime.LocalDateTime
 
 data class ShippingUpdate(

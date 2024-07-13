@@ -25,6 +25,7 @@ val ehcacheVersion: String by project
 val aliyunJavaSdkDmVersion: String by project
 val aliyunJavaSdkCoreVersion: String by project
 val aliyunJavaSdkDysmsapiVersion: String by project
+val koinVersion: String by project
 
 
 
@@ -49,6 +50,9 @@ repositories {
 }
 
 dependencies {
+    // 依赖注入
+    implementation("io.insert-koin:koin-core:$koinVersion")
+    implementation("io.insert-koin:koin-core-jvm:$koinVersion")
     // 程序行为记录
     implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
     // 用户认证

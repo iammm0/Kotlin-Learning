@@ -38,6 +38,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
             implementation(libs.ktor.client.auth)
+            implementation(libs.koin.core)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)

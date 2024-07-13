@@ -1,6 +1,6 @@
 package com.example.physicistscard.android.activities
 
-import AuthApiServiceImpl
+import AuthViewModel
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,9 +13,11 @@ import androidx.core.content.ContextCompat
 import com.example.physicistscard.android.ui.components.SystemUiController
 import com.example.physicistscard.android.ui.components.navigation.AuthNavigation
 import com.example.physicistscard.android.ui.themes.MyApplicationTheme
-import createCommonHttpClient
 import android.Manifest
-
+import androidx.activity.viewModels
+import com.example.physicistscard.android.ui.screens.authScreens.AuthViewModelFactory
+import com.example.physicistscard.businessLogic.IAuthService
+import org.koin.android.ext.android.inject
 
 
 class AuthActivity : ComponentActivity() {
@@ -25,13 +27,17 @@ class AuthActivity : ComponentActivity() {
         Manifest.permission.ACCESS_NETWORK_STATE
     )
 
+    // 使用 Koin 注入 IAuthService
+    private val authService: IAuthService by inject()
+
+    // 注入 ViewModel
+    private val authViewModel: AuthViewModel by viewModels {
+        AuthViewModelFactory(authService)
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // 初始化 HttpClient 和 AuthApiServiceImpl
-        val client = createCommonHttpClient()
-        val authService = AuthApiServiceImpl(client)
 
         setContent {
             MyApplicationTheme {
@@ -73,7 +79,7 @@ class AuthActivity : ComponentActivity() {
     }
 
     // 权限请求器，用于请求多个权限
-    private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+    private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ ->
         if (allPermissionsGranted()) {
             // 所有权限已被授予
             onPermissionsGranted()

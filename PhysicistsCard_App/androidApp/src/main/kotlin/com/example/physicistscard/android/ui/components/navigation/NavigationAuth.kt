@@ -1,7 +1,5 @@
 package com.example.physicistscard.android.ui.components.navigation
 
-import AuthRepository
-import AuthViewModel
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -10,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.physicistscard.apiServices.AuthApiService
 import com.example.physicistscard.android.ui.screens.authScreens.LoginEmailScreen
 import com.example.physicistscard.android.ui.screens.authScreens.LoginNormalScreen
 import com.example.physicistscard.android.ui.screens.authScreens.LoginPhoneScreen
@@ -18,12 +15,11 @@ import com.example.physicistscard.android.ui.screens.authScreens.RegisterEmailSc
 import com.example.physicistscard.android.ui.screens.authScreens.RegisterPhoneScreen
 import com.example.physicistscard.android.ui.screens.authScreens.StartScreen
 import com.example.physicistscard.android.ui.screens.storeScreens.StoreScreen
+import com.example.physicistscard.businessLogic.IAuthService
 
 @Composable
-fun AuthNavigation(authService: AuthApiService) {
+fun AuthNavigation(authService: IAuthService) {
     val navController = rememberNavController()
-    val authRepository = AuthRepository(authService)
-    val authViewModel = AuthViewModel(authRepository)
     NavHost(
         navController = navController,
         startDestination = "start",
@@ -45,7 +41,7 @@ fun AuthNavigation(authService: AuthApiService) {
         composable("phone_register") { RegisterPhoneScreen(navController) }
         composable("email_register") { RegisterEmailScreen(navController) }
         composable("phone_login") { LoginPhoneScreen(navController) }
-        composable("email_login") { LoginEmailScreen(navController, authViewModel) }
+        composable("email_login") { LoginEmailScreen(navController, authService) }
         composable(BottomNavItem.Store.route) { StoreScreen(navController) }
     }
 }
