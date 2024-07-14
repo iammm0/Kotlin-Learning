@@ -47,5 +47,12 @@ interface IUserCommentService : Repository<UserComment, String> {
      * @return 评论数
      */
     fun countCommentsByTargetId(targetId: String, targetType: CommentTargetType): Int
+    /**
+     * 根据ID查找评论
+     *
+     * @param commentId 评论ID
+     * @return 找到的评论对象，未找到则为null
+     */
+    fun findCommentById(commentId: String): UserComment?
 }
 

@@ -15,7 +15,6 @@ fun Application.chatRoutes() {
         route("/community/chat") {
             webSocket {
                 connections += this
-
                 try {
                     for (frame in incoming) {
                         if (frame is Frame.Text) {

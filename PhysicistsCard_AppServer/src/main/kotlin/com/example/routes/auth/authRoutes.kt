@@ -1,14 +1,18 @@
 package com.example.routes.auth
 
+import com.example.models.databaseTableModels.auth.user.Users.role
 import com.example.models.transmissionModels.auth.requests.*
 import com.example.models.transmissionModels.auth.responses.LoginResponse
 import com.example.models.transmissionModels.auth.responses.ResetPasswordResponse
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
+import com.example.models.transmissionModels.auth.user.Role
 import com.example.models.transmissionModels.auth.user.User
 import com.example.services.dataAccessServices.auth.IAuthService
+import com.example.utils.hasRole
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -123,78 +127,95 @@ fun Application.authRoutes(
             authenticate {
                 // 注册为商家
                 post("/become_seller") {
-                    val principal = call.principal<User>()
-                    principal?.let {
-                        if (authService.becomeSeller(it.userId)) {
-                            call.respond(HttpStatusCode.OK, "注册为商家成功")
-                        } else {
-                            call.respond(HttpStatusCode.InternalServerError, "注册为商家失败")
-                        }
-                    } ?: call.respond(HttpStatusCode.Unauthorized)
+                    val principal = call.principal<JWTPrincipal>()
+                    if (principal == null || !principal.hasRole(Role.USER)) {
+                        call.respond(HttpStatusCode.Forbidden, "你没有访问权限")
+                        return@post
+                    }
+                    val userId = principal.payload.getClaim("userId").asString()
+                    if (authService.becomeSeller(userId)) {
+                        call.respond(HttpStatusCode.OK, "注册为商家成功")
+                    } else {
+                        call.respond(HttpStatusCode.InternalServerError, "注册为商家失败")
+                    }
                 }
 
                 // 用户登出
                 post("/logout") {
-                    val principal = call.principal<User>()
-                    principal?.let {
-                        if (authService.logout(it.userId)) {
-                            call.respond(HttpStatusCode.OK, "登出成功")
-                        } else {
-                            call.respond(HttpStatusCode.InternalServerError, "登出失败")
-                        }
-                    } ?: call.respond(HttpStatusCode.Unauthorized)
+                    val principal = call.principal<JWTPrincipal>()
+                    if (principal == null) {
+                        call.respond(HttpStatusCode.Unauthorized)
+                        return@post
+                    }
+                    val userId = principal.payload.getClaim("userId").asString()
+                    if (authService.logout(userId)) {
+                        call.respond(HttpStatusCode.OK, "登出成功")
+                    } else {
+                        call.respond(HttpStatusCode.InternalServerError, "登出失败")
+                    }
                 }
 
                 // 切换头像
                 post("/change-avatar") {
-                    val principal = call.principal<User>()
-                    principal?.let {
-                        val avatarUrl = call.receive<String>()
-                        if (authService.changeAvatar(it.userId, avatarUrl)) {
-                            call.respond(HttpStatusCode.OK, "头像切换成功")
-                        } else {
-                            call.respond(HttpStatusCode.InternalServerError, "头像切换失败")
-                        }
-                    } ?: call.respond(HttpStatusCode.Unauthorized)
+                    val principal = call.principal<JWTPrincipal>()
+                    if (principal == null) {
+                        call.respond(HttpStatusCode.Unauthorized)
+                        return@post
+                    }
+                    val userId = principal.payload.getClaim("userId").asString()
+                    val avatarUrl = call.receive<String>()
+                    if (authService.changeAvatar(userId, avatarUrl)) {
+                        call.respond(HttpStatusCode.OK, "头像切换成功")
+                    } else {
+                        call.respond(HttpStatusCode.InternalServerError, "头像切换失败")
+                    }
                 }
 
                 // 绑定手机
                 post("/binding-phone") {
-                    val principal = call.principal<User>()
-                    principal?.let {
-                        val phone = call.receive<String>()
-                        if (authService.bindPhone(it.userId, phone)) {
-                            call.respond(HttpStatusCode.OK, "绑定手机成功")
-                        } else {
-                            call.respond(HttpStatusCode.InternalServerError, "绑定手机失败")
-                        }
-                    } ?: call.respond(HttpStatusCode.Unauthorized)
+                    val principal = call.principal<JWTPrincipal>()
+                    if (principal == null) {
+                        call.respond(HttpStatusCode.Unauthorized)
+                        return@post
+                    }
+                    val userId = principal.payload.getClaim("userId").asString()
+                    val phone = call.receive<String>()
+                    if (authService.bindPhone(userId, phone)) {
+                        call.respond(HttpStatusCode.OK, "绑定手机成功")
+                    } else {
+                        call.respond(HttpStatusCode.InternalServerError, "绑定手机失败")
+                    }
                 }
 
                 // 绑定邮箱
                 post("/binding-email") {
-                    val principal = call.principal<User>()
-                    principal?.let {
-                        val email = call.receive<String>()
-                        if (authService.bindEmail(it.userId, email)) {
-                            call.respond(HttpStatusCode.OK, "绑定邮箱成功")
-                        } else {
-                            call.respond(HttpStatusCode.InternalServerError, "绑定邮箱失败")
-                        }
-                    } ?: call.respond(HttpStatusCode.Unauthorized)
+                    val principal = call.principal<JWTPrincipal>()
+                    if (principal == null) {
+                        call.respond(HttpStatusCode.Unauthorized)
+                        return@post
+                    }
+                    val userId = principal.payload.getClaim("userId").asString()
+                    val email = call.receive<String>()
+                    if (authService.bindEmail(userId, email)) {
+                        call.respond(HttpStatusCode.OK, "绑定邮箱成功")
+                    } else {
+                        call.respond(HttpStatusCode.InternalServerError, "绑定邮箱失败")
+                    }
                 }
 
                 // 添加账户
                 post("/add-account") {
-                    val principal = call.principal<User>()
-                    principal?.let {
-                        val addAccountRequest = call.receive<AddAccountRequest>()
-                        if (authService.addAccount(addAccountRequest)) {
-                            call.respond(HttpStatusCode.OK, "添加账户成功")
-                        } else {
-                            call.respond(HttpStatusCode.InternalServerError, "添加账户失败")
-                        }
-                    } ?: call.respond(HttpStatusCode.Unauthorized)
+                    val principal = call.principal<JWTPrincipal>()
+                    if (principal == null || !principal.hasRole(Role.SUPER_ADMIN)) {
+                        call.respond(HttpStatusCode.Forbidden, "你没有访问权限")
+                        return@post
+                    }
+                    val addAccountRequest = call.receive<AddAccountRequest>()
+                    if (authService.addAccount(addAccountRequest)) {
+                        call.respond(HttpStatusCode.OK, "添加账户成功")
+                    } else {
+                        call.respond(HttpStatusCode.InternalServerError, "添加账户失败")
+                    }
                 }
             }
         }

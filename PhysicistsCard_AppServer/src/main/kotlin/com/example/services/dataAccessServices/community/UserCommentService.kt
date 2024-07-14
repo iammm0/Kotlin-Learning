@@ -2,11 +2,7 @@ package com.example.services.dataAccessServices.community
 
 import IUserCommentRepository
 import com.example.models.transmissionModels.community.interaction.CommentTargetType
-import com.example.models.transmissionModels.community.interaction.LikeTargetType
 import com.example.models.transmissionModels.community.interaction.UserComment
-import com.example.models.transmissionModels.community.interaction.UserLike
-import com.example.repositories.community.UserCommentRepository
-
 
 class UserCommentService(private val userCommentRepository: IUserCommentRepository) : IUserCommentService {
     override fun addComment(postId: String, comment: UserComment): Boolean {
@@ -26,6 +22,10 @@ class UserCommentService(private val userCommentRepository: IUserCommentReposito
     }
 
     override fun countCommentsByTargetId(targetId: String, targetType: CommentTargetType): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun findCommentById(commentId: String): UserComment? {
         TODO("Not yet implemented")
     }
 
