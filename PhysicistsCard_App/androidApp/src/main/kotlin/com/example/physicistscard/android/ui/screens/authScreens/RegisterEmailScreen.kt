@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,21 +42,24 @@ fun RegisterEmailScreen(navController: NavController) {
             value = email,
             onValueChange = { email = it },
             labelText = "邮件地址",
-            isPassword = false
+            isPassword = false,
+            modifier = Modifier.width(330.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
         LoginAndRegisterOutlinedTextField(
             value = password,
             onValueChange = { password = it },
             labelText = "密码",
-            isPassword = true
+            isPassword = true,
+            modifier = Modifier.width(330.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
         LoginAndRegisterOutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
             labelText = "确认密码",
-            isPassword = true
+            isPassword = true,
+            modifier = Modifier.width(330.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
         RowWithTextFieldAndButton(

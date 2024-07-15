@@ -79,7 +79,7 @@ fun NavigationHost(navController: NavHostController) {
             val postId = backStackEntry.arguments?.getString("postId")
             PostDetailScreen(postId = postId, comments = commentsSample, navController)
         }
-        composable("store-card-bag") { CardBagScreen() }
+        composable("store-card-bag") { CardBagScreen(navController) }
         composable("store-order-detail") { OrderScreen(sampleOrders, navController) }
         composable("store-delivery-status") { DeliveryDetailsScreen(sampleLogisticsInfo, navController) }
         composable("orderDetail/{orderDetail}") {backStackEntry ->

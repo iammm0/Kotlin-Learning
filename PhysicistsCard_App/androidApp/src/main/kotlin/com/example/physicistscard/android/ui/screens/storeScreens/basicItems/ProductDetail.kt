@@ -29,8 +29,8 @@ fun ProductDetail(productId: String?) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(2.dp), // 根据需要调整外部填充来控制Card的大小和位置
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp), // 根据需要调整卡片的高度
+            .padding(1.dp), // 根据需要调整外部填充来控制Card的大小和位置
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp), // 根据需要调整卡片的高度
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary // 自定义卡片的背景颜色

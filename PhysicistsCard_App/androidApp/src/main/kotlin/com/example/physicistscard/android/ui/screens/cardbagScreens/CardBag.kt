@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
 import com.example.physicistscard.android.ui.screens.cardbagScreens.basicItems.CardBagItem
 import com.example.physicistscard.android.ui.screens.storeScreens.basicItems.Product
 
@@ -22,10 +23,28 @@ data class CardBag(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardBagScreen() {
+fun CardBagScreen(navController: NavController) {
     val cardBags = remember { mutableStateListOf<CardBag>() }
     val counter = remember { mutableIntStateOf(0) }
     val isAllSelected = remember { mutableStateOf(false) } // 添加全选状态
+
+    fun handleSelectionChange(updatedBag: CardBag, action: String) {
+        when (action) {
+            "add" -> {
+                cardBags.add(updatedBag)
+                counter.intValue += 1
+            }
+            "delete" -> {
+                cardBags.removeAll { it.isSelected }
+            }
+            "update" -> {
+                val index = cardBags.indexOfFirst { it.id == updatedBag.id }
+                if (index != -1) {
+                    cardBags[index] = updatedBag
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -75,13 +94,13 @@ fun CardBagScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             cardBags.forEach { cardBag ->
-                CardBagItem(cardBag = cardBag) { selectedBag ->
-                    val index = cardBags.indexOfFirst { it.id == selectedBag.id }
-                    if (index != -1) {
-                        cardBags[index] =
-                            cardBags[index].copy(isSelected = !cardBags[index].isSelected)
-                    }
-                }
+                CardBagItem(
+                    cardBag = cardBag,
+                    onSelectionChange = { selectedBag ->
+                        handleSelectionChange(selectedBag.copy(isSelected = !selectedBag.isSelected), "update")
+                    },
+                    navController = navController
+                )
             }
         }
     }

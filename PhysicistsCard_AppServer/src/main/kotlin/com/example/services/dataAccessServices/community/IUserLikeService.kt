@@ -4,7 +4,7 @@ import com.example.models.transmissionModels.community.interaction.LikeTargetTyp
 import com.example.models.transmissionModels.community.interaction.UserLike
 import com.example.repositories.Repository
 
-interface  IUserLikeService : Repository<UserLike, String> {
+interface  IUserLikeService {
     /**
      * 添加点赞
      *

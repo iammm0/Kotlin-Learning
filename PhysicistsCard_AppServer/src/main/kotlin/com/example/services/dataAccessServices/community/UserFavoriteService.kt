@@ -5,40 +5,21 @@ import com.example.models.transmissionModels.community.interaction.UserFavorite
 import com.example.repositories.community.IUserFavoriteRepository
 import com.example.repositories.community.UserFavoriteRepository
 
-class UserFavoriteService : IUserFavoriteService {
+class UserFavoriteService(private val userFavoriteRepository: IUserFavoriteRepository) : IUserFavoriteService {
     override fun addFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): UserFavorite {
-        TODO("Not yet implemented")
+        return userFavoriteRepository.addFavorite(userId, targetId, targetType)
     }
 
     override fun removeFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): Boolean {
-        TODO("Not yet implemented")
+        return userFavoriteRepository.removeFavorite(userId, targetId, targetType)
     }
 
     override fun getFavoritesByUserId(userId: String): List<UserFavorite> {
-        TODO("Not yet implemented")
+        return userFavoriteRepository.findFavoritesByUserId(userId)
     }
 
     override fun countFavoritesByTargetId(targetId: String, targetType: FavoriteTargetType): Int {
-        TODO("Not yet implemented")
+        return userFavoriteRepository.findFavoritesByTargetId(targetId, targetType).size
     }
 
-    override fun add(item: UserFavorite): UserFavorite {
-        TODO("Not yet implemented")
-    }
-
-    override fun findById(id: String): UserFavorite? {
-        TODO("Not yet implemented")
-    }
-
-    override fun findAll(): List<UserFavorite?> {
-        TODO("Not yet implemented")
-    }
-
-    override fun update(item: UserFavorite): UserFavorite {
-        TODO("Not yet implemented")
-    }
-
-    override fun delete(id: String): Boolean {
-        TODO("Not yet implemented")
-    }
 }

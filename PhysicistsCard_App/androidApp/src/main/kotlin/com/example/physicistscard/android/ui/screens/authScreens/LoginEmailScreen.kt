@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,7 +51,8 @@ fun LoginEmailScreen(navController: NavController, authService: IAuthService) {
             value = email,
             onValueChange = { email = it },
             labelText = "邮箱地址",
-            isPassword = false
+            isPassword = false,
+            modifier = Modifier.width(330.dp)
         )
         Spacer(modifier = Modifier.height(25.dp))
         RowWithTextFieldAndButton(

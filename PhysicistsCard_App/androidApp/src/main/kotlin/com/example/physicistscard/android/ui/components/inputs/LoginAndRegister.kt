@@ -22,9 +22,7 @@ fun LoginAndRegisterOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     labelText: String,
-    modifier: Modifier = Modifier
-        .fillMaxWidth()
-        .alpha(0.7f), // 修改alpha值为0.5以适应透明度效果
+    modifier: Modifier = Modifier, // 修改alpha值为0.5以适应透明度效果
     isPassword: Boolean
 ) {
     OutlinedTextField(

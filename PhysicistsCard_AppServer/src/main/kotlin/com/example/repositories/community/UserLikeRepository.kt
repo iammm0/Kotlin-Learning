@@ -12,7 +12,7 @@ import java.util.*
 class UserLikeRepository : IUserLikeRepository {
     override fun addLike(userId: String, targetId: String, targetType: LikeTargetType): UserLike = transaction {
         val likeId = UUID.randomUUID().toString()  // 生成唯一标识符
-        com.example.models.databaseTableModels.community.interaction.like.UserLikes.insert {
+        UserLikes.insert {
             it[this.likeId] = likeId
             it[this.userId] = userId
             it[this.targetId] = targetId

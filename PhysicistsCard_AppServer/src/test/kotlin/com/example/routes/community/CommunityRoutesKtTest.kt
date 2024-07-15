@@ -16,4 +16,14 @@ class CommunityRoutesKtTest {
             TODO("Please write your test here")
         }
     }
+
+    @Test
+    fun testGetCommunityPosts() = testApplication {
+        application {
+            module()
+        }
+        client.get("/community/posts/").apply {
+            TODO("Please write your test here")
+        }
+    }
 }

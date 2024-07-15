@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,14 +40,16 @@ fun LoginNormalScreen(navController: NavController) {
             value = identitifier,
             onValueChange = { identitifier = it },
             labelText = "邮箱地址/手机号码",
-            isPassword = false
+            isPassword = false,
+            modifier = Modifier.width(330.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
         LoginAndRegisterOutlinedTextField(
             value = password,
             onValueChange = { password = it },
             labelText = "密码",
-            isPassword = true
+            isPassword = true,
+            modifier = Modifier.width(330.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         LoginAndRegisterButton(text = "登录") {

@@ -41,8 +41,7 @@ fun SystemUiController() {
             window.decorView.systemUiVisibility = (
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                             or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    )
+                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
 
             // 旧方法设置导航栏透明（可选，根据需要决定是否需要）
             @Suppress("DEPRECATION")

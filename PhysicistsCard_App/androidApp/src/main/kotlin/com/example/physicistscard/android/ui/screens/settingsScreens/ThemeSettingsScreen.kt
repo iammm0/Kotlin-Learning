@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -33,6 +34,7 @@ fun ThemeSettingsScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center
     ) {
         TopAppBar("主题切换")
+        Spacer(Modifier.height(10.dp))
         Switch(
             checked = isDarkThemeEnabled,
             onCheckedChange = { isDarkThemeEnabled = it },

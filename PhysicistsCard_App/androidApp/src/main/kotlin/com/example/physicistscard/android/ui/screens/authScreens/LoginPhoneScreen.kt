@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,8 +26,6 @@ fun LoginPhoneScreen(navController: NavController) {
     var phoneNumber by remember { mutableStateOf("") }
     var phoneCode by remember { mutableStateOf("") }
 
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -40,7 +39,8 @@ fun LoginPhoneScreen(navController: NavController) {
             value = phoneNumber,
             onValueChange = { phoneNumber = it },
             labelText = "手机号码",
-            isPassword = false
+            isPassword = false,
+            modifier = Modifier.width(330.dp)
         )
         Spacer(modifier = Modifier.height(25.dp))
         RowWithTextFieldAndButton(

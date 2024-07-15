@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.text.style.TextAlign
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -16,7 +17,7 @@ fun TopAppBar(text: String) {
     TopAppBar(
         title = { Text(
             text = text,
-            color = MaterialTheme.colorScheme.secondary
+            color = MaterialTheme.colorScheme.secondary,
         ) },
         modifier = Modifier.height(75.dp),
         colors = TopAppBarDefaults.topAppBarColors(

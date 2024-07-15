@@ -3,43 +3,10 @@ package com.example.services.dataAccessServices.community
 import com.example.models.transmissionModels.community.post.Content
 import com.example.models.transmissionModels.community.post.Post
 import com.example.repositories.community.IPostRepository
-import com.example.repositories.community.PostRepository
+import java.time.LocalDateTime
+import java.util.*
 
 class PostService(private val postRepository: IPostRepository) : IPostService {
-    // 根据作者ID获取帖子
-    fun getPostsByAuthorId(authorId: String): List<Post> {
-        return postRepository.findByAuthorId(authorId)
-    }
-
-    // 根据类别获取帖子
-    fun getPostsByCategory(category: String): List<Post> {
-        return postRepository.findByCategory(category)
-    }
-
-    // 添加标签到帖子
-    fun addTagToPost(postId: String, tag: String): Boolean {
-        return postRepository.addTag(postId, tag)
-    }
-
-    // 从帖子移除标签
-    fun removeTagFromPost(postId: String, tag: String): Boolean {
-        return postRepository.removeTag(postId, tag)
-    }
-
-    // 根据标签获取帖子
-    fun getPostsByTag(tag: String): List<Post> {
-        return postRepository.findByTag(tag)
-    }
-
-    // 添加帖子
-    fun addPost(post: Post): Post {
-        return postRepository.add(post)
-    }
-
-    // 根据ID获取帖子
-    fun getPostById(id: String): Post? {
-        return postRepository.findById(id)
-    }
 
     override fun createPost(
         userId: String,
@@ -48,7 +15,18 @@ class PostService(private val postRepository: IPostRepository) : IPostService {
         category: String?,
         tags: List<String>
     ): Post {
-        TODO("Not yet implemented")
+        // 实现创建帖子的方法
+        val post = Post(
+            postId = UUID.randomUUID().toString(),
+            userId = userId,
+            title = title,
+            contents = contents,
+            createdAt = LocalDateTime.now(),
+            updatedAt = null,
+            category = category,
+            tags = tags
+        )
+        return postRepository.add(post)
     }
 
     override fun updatePost(
@@ -58,29 +36,31 @@ class PostService(private val postRepository: IPostRepository) : IPostService {
         category: String?,
         tags: List<String>?
     ): Boolean {
-        TODO("Not yet implemented")
+        // 实现更新帖子的逻辑
+        val post = postRepository.findById(postId) ?: return false
+        post.copy(
+            title = title ?: post.title,
+            contents = contents ?: post.contents,
+            category = category ?: post.category,
+            tags = tags ?: post.tags,
+            updatedAt = LocalDateTime.now()
+        )
+        return true
     }
 
-    override fun getAllPosts(): List<Post> {
-        TODO("Not yet implemented")
+    override fun getAllPosts(): List<Post?> {
+        return postRepository.findAll()
     }
 
     override fun deletePost(postId: String): Boolean {
-        TODO("Not yet implemented")
+        return postRepository.delete(postId)
     }
-
-
-    // 更新帖子
-    fun updatePost(post: Post): Post {
-        return postRepository.update(post)
-    }
-
 
     override fun findPostById(postId: String): Post? {
-        TODO("Not yet implemented")
+        return postRepository.findById(postId)
     }
 
     override fun listPostsByUserId(userId: String): List<Post> {
-        TODO("Not yet implemented")
+        return postRepository.findByAuthorId(userId)
     }
 }

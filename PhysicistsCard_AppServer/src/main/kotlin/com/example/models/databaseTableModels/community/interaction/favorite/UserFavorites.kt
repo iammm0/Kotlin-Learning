@@ -11,5 +11,5 @@ object UserFavorites : Table("UserFavorites") {
     val targetType = enumerationByName("targetType", 10, FavoriteTargetType::class)
     val createdAt = datetime("createdAt")
 
-    override val primaryKey = PrimaryKey(com.example.models.databaseTableModels.community.interaction.favorite.UserFavorites.favoriteId, name = "PK_UserFavorites_FavoriteId")
+    override val primaryKey = PrimaryKey(favoriteId, name = "PK_UserFavorites_FavoriteId")
 }

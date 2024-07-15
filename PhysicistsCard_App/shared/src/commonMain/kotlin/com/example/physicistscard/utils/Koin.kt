@@ -11,7 +11,7 @@ import org.koin.dsl.module
 val commonModule: Module = module {
 
     // 注入 AuthApi 实现
-    single<AuthApi> { AuthApiImpl(createCommonHttpClient(), "http://192.168.1.100:8080") } // 替换为你的实际实现
+    single<AuthApi> { AuthApiImpl(createCommonHttpClient(), "http://192.168.1.101:8080") } // 替换为你的实际实现
 
     // 注入 AuthService
     single<IAuthService> { AuthService(get()) }

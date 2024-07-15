@@ -33,7 +33,7 @@ interface IPostService {
      *
      * @return 帖子列表
      */
-    fun getAllPosts(): List<Post>
+    fun getAllPosts(): List<Post?>
 
     /**
      * 根据帖子ID删除帖子

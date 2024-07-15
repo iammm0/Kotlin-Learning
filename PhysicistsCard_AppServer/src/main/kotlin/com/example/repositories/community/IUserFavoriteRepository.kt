@@ -3,6 +3,7 @@ package com.example.repositories.community
 import com.example.models.transmissionModels.community.interaction.FavoriteTargetType
 import com.example.models.transmissionModels.community.interaction.UserFavorite
 
+// 用户收藏操作的基础接口
 interface IUserFavoriteRepository {
     /**
      * 用户收藏帖子或商品
@@ -31,4 +32,13 @@ interface IUserFavoriteRepository {
      * @return 收藏记录列表
      */
     fun findFavoritesByUserId(userId: String): List<UserFavorite>
+
+    /**
+     * 根据目标ID查找所有收藏记录
+     *
+     * @param targetId 目标ID
+     * @param targetType 目标类型（帖子或商品）
+     * @return 收藏记录列表
+     */
+    fun findFavoritesByTargetId(targetId: String, targetType: FavoriteTargetType): List<UserFavorite>
 }

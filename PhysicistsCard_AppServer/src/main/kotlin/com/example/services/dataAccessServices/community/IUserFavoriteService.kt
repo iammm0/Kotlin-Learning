@@ -4,7 +4,7 @@ import com.example.models.transmissionModels.community.interaction.FavoriteTarge
 import com.example.models.transmissionModels.community.interaction.UserFavorite
 import com.example.repositories.Repository
 
-interface IUserFavoriteService : Repository<UserFavorite, String> {
+interface IUserFavoriteService {
     /**
      * 添加收藏
      *

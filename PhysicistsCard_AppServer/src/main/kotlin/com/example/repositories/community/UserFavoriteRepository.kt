@@ -41,6 +41,25 @@ class UserFavoriteRepository : IUserFavoriteRepository {
             .map { it.toUserFavorite() }
     }
 
+    override fun findFavoritesByTargetId(targetId: String, targetType: FavoriteTargetType): List<UserFavorite> {
+        return transaction {
+            UserFavorites.select {
+                (UserFavorites.targetId eq targetId) and
+                        (UserFavorites.targetType eq targetType)
+            }.map { rowToUserFavorite(it) }
+        }
+    }
+
+    private fun rowToUserFavorite(row: ResultRow): UserFavorite {
+        return UserFavorite(
+            favoriteId = row[UserFavorites.favoriteId],
+            userId = row[UserFavorites.userId],
+            targetId = row[UserFavorites.targetId],
+            targetType = row[UserFavorites.targetType],
+            createdAt = row[UserFavorites.createdAt]
+        )
+    }
+
     private fun ResultRow.toUserFavorite(): UserFavorite =
         UserFavorite(
             favoriteId = this[UserFavorites.favoriteId],

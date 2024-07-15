@@ -27,7 +27,7 @@ fun LoginAndRegisterButton(
     onClick: () -> Unit
 ) {
 
-    var clicked by remember { mutableStateOf(false) }
+    val clicked by remember { mutableStateOf(false) }
     val scale: Float by animateFloatAsState(
         targetValue = if (clicked) 0.9f else 1f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),

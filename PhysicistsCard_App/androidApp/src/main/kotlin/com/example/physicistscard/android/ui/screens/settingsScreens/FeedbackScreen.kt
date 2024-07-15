@@ -1,5 +1,6 @@
 package com.example.physicistscard.android.ui.screens.settingsScreens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -41,11 +43,21 @@ fun FeedbackScreen(navController: NavController) {
             onValueChange = { feedbackText = it },
             label = { Text("请输入您的反馈") },
             modifier = Modifier.fillMaxWidth().height(240.dp),
-            shape = RoundedCornerShape(30.dp)
+            shape = RoundedCornerShape(30.dp),
+            colors = TextFieldDefaults.colors(MaterialTheme.colorScheme.secondary)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { /* 处理反馈提交逻辑 */ }) {
-            Text("提交")
+        Button(
+            onClick = { /* 处理反馈提交逻辑 */ },
+            // 设置按钮的默认颜色
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            // 设置默认边框颜色和宽度
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
+        ) {
+            Text(
+                text = "提交",
+                color = MaterialTheme.colorScheme.secondary
+            )
         }
     }
 }

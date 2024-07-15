@@ -6,47 +6,46 @@ import com.example.models.transmissionModels.community.interaction.UserComment
 
 class UserCommentService(private val userCommentRepository: IUserCommentRepository) : IUserCommentService {
     override fun addComment(postId: String, comment: UserComment): Boolean {
-        TODO("Not yet implemented")
+        return userCommentRepository.add(comment) != null
     }
 
     override fun getCommentsByTargetId(targetId: String, targetType: CommentTargetType): List<UserComment> {
-        TODO("Not yet implemented")
+        return userCommentRepository.findByTargetId(targetId, targetType)
     }
 
     override fun getRepliesForComment(commentId: String): List<UserComment> {
-        TODO("Not yet implemented")
+        return userCommentRepository.findReplies(commentId)
     }
 
     override fun deleteComment(commentId: String): Boolean {
-        TODO("Not yet implemented")
+        return userCommentRepository.delete(commentId)
     }
 
     override fun countCommentsByTargetId(targetId: String, targetType: CommentTargetType): Int {
-        TODO("Not yet implemented")
+        return userCommentRepository.findByTargetId(targetId, targetType).size
     }
 
     override fun findCommentById(commentId: String): UserComment? {
-        TODO("Not yet implemented")
+        return userCommentRepository.findById(commentId)
     }
 
     override fun add(item: UserComment): UserComment {
-        TODO("Not yet implemented")
+        return userCommentRepository.add(item)
     }
 
     override fun findById(id: String): UserComment? {
-        TODO("Not yet implemented")
+        return userCommentRepository.findById(id)
     }
 
     override fun findAll(): List<UserComment?> {
-        TODO("Not yet implemented")
+        return userCommentRepository.findAll()
     }
 
     override fun update(item: UserComment): UserComment {
-        TODO("Not yet implemented")
+        return userCommentRepository.update(item)
     }
 
     override fun delete(id: String): Boolean {
-        TODO("Not yet implemented")
+        return userCommentRepository.delete(id)
     }
-
 }

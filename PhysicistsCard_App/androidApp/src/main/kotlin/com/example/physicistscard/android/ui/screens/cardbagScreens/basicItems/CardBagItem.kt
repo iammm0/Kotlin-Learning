@@ -11,21 +11,34 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.physicistscard.android.ui.screens.cardbagScreens.CardBag
+import com.example.physicistscard.android.ui.screens.cardbagScreens.CardBagDetail
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CardBagItem(cardBag: CardBag, onSelectionChange: (CardBag) -> Unit) {
+fun CardBagItem(
+    cardBag: CardBag,
+    onSelectionChange: (CardBag) -> Unit,
+    navController: NavController
+) {
+
+    var expanded by remember { mutableStateOf(false) }
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .combinedClickable(
                 onClick = {
-                    // 处理普通点击事件（如果需要）
+                    expanded = !expanded // 点击时切换展开状态
                 },
                 onLongClick = {
                     // 长按时切换选中状态
@@ -44,12 +57,23 @@ fun CardBagItem(cardBag: CardBag, onSelectionChange: (CardBag) -> Unit) {
                 modifier = Modifier.padding(16.dp),
                 color = MaterialTheme.colorScheme.secondary
             )
-            cardBag.products.forEach { product ->
-                Text(
-                    text = product.name,
-                    modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
-                    color = MaterialTheme.colorScheme.secondary
-                )
+            if (expanded) {
+                if (cardBag.products.isEmpty()) {
+                    Text(
+                        text = "此卡袋为空",
+                        modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                } else {
+                    cardBag.products.forEach { product ->
+                        Text(
+                            text = product.name,
+                            modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                }
+                CardBagDetail(cardBag = cardBag, navController = navController)
             }
         }
     }

@@ -19,7 +19,7 @@ class TokenCleanupService(private val repository: IAuthTokenRepository) {
             } catch (e: Exception) {
                 println("清理过程中发生错误: ${e.message}")
             }
-            delay(5 * 60 * 1000L) // 每5分钟检查一次
+            delay(24 * 60 * 60 * 1000L) // 每5分钟检查一次
         }
     }
 
