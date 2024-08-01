@@ -97,4 +97,11 @@ interface IAuthService {
      * @return 添加账户是否成功
      */
     fun addAccount(request: AddAccountRequest): Boolean
+
+    /**
+     * 使用刷新令牌获取新的访问令牌
+     * @param refreshToken 刷新令牌
+     * @return 登录响应对象，包含新的访问令牌和刷新令牌
+     */
+    fun refreshToken(refreshToken: String): LoginResponse
 }

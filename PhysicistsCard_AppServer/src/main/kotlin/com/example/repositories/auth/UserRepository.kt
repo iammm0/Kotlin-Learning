@@ -1,7 +1,7 @@
 package com.example.repositories.auth
 
 import IUserRepository
-import com.example.models.databaseTableModels.auth.authToken.AuthTokens
+import com.example.models.databaseTableModels.auth.authToken.RefreshTokens
 import com.example.models.databaseTableModels.auth.user.Users
 import com.example.models.transmissionModels.auth.user.Role
 import com.example.models.transmissionModels.auth.user.User
@@ -111,7 +111,7 @@ class UserRepository :  IUserRepository {
     override fun deleteTokensByUserId(userId: String): Boolean {
         return transaction {
             addLogger(StdOutSqlLogger)
-            AuthTokens.deleteWhere { AuthTokens.userId eq userId } > 0
+            RefreshTokens.deleteWhere { RefreshTokens.userId eq userId } > 0
         }
     }
 
@@ -148,4 +148,26 @@ class UserRepository :  IUserRepository {
             Users.selectAll().where { (Users.email eq email) or (Users.phone eq phone) }.count() > 0
         }
     }
+
+    override fun findUserById(userId: String): User? {
+        return transaction {
+            Users.selectAll().where { Users.userId eq userId }
+                .mapNotNull { it.toUser() }
+                .singleOrNull()
+        }
+    }
+
+    private fun ResultRow.toUser() = User(
+        userId = this[Users.userId],
+        username = this[Users.username],
+        email = this[Users.email],
+        phone = this[Users.phone],
+        passwordHash = this[Users.passwordHash],
+        avatarUrl = this[Users.avatarUrl],
+        bio = this[Users.bio],
+        registerDate = this[Users.registerDate],
+        isEmailVerified = this[Users.isEmailVerified],
+        isPhoneVerified = this[Users.isPhoneVerified],
+        role = this[Users.role]
+    )
 }

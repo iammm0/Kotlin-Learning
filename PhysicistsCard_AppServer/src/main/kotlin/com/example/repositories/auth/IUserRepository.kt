@@ -86,4 +86,11 @@ interface IUserRepository {
      * @return 是否重复
      */
     fun checkDuplicateEmailOrPhone(email: String?, phone: String?): Boolean
+
+    /**
+     * 根据用户ID查找用户
+     * @param userId 用户ID
+     * @return 用户对象，若未找到则返回 null
+     */
+    fun findUserById(userId: String): User?
 }

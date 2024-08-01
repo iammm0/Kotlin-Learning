@@ -7,19 +7,15 @@ package com.example
 // 配置数据库连接池与缓存
 // 编写单元测试与集成测试
 
-import IAuthTokenRepository
 import IUserCommentRepository
 import IUserRepository
 import com.example.configs.configurations
-import com.example.repositories.auth.IVerificationCodeRepository
-import com.example.repositories.auth.TokenRepository
-import com.example.repositories.auth.UserRepository
+import com.example.repositories.auth.*
 import com.example.services.TokenCleanupService
 import com.example.routes.auth.authRoutes
 import com.example.routes.community.communityRoutes
 import com.example.routes.store.storeRoutes
 import com.example.services.VerificationCodesCleanupService
-import com.example.repositories.auth.VerificationCodeRepository
 import com.example.repositories.community.*
 import com.example.repositories.store.*
 import com.example.services.dataAccessServices.auth.AuthService
@@ -58,7 +54,6 @@ fun Application.module() {
     val jwtSecret = config.getString("ktor.security.jwt.secret")
     val jwtIssuer = config.getString("ktor.security.jwt.issuer")
     val jwtValidityInMs = config.getLong("ktor.security.jwt.validityInMs")
-
     val userRepository: IUserRepository = UserRepository()
     val postRepository: IPostRepository = PostRepository()
     val verificationCodeRepository: IVerificationCodeRepository = VerificationCodeRepository()
@@ -68,8 +63,8 @@ fun Application.module() {
     val paymentInfoRepository: IPaymentInfoRepository = PaymentInfoRepository()
     val shippingInfoRepository: IShippingInfoRepository  = ShippingInfoRepository()
     val orderRepository: IOrderRepository = OrderRepository(paymentInfoRepository, shippingInfoRepository)
-    val tokenRepository: IAuthTokenRepository = TokenRepository()
     val userFavoriteRepository: IUserFavoriteRepository = UserFavoriteRepository()
+    val refreshTokenRepository: IRefreshTokenRepository = RefreshTokenRepository()
 
     val verificationCodesCleanupService = VerificationCodesCleanupService(verificationCodeRepository)
     val postService: IPostService = PostService(postRepository)
@@ -79,13 +74,11 @@ fun Application.module() {
     val productService: IProductService = ProductService(productRepository)
     val orderService: IOrderService = OrderService(orderRepository)
     val tokenService: ITokenService = JwtITokenService(jwtSecret, jwtIssuer, jwtValidityInMs)
-    val tokenCleanupService = TokenCleanupService(tokenRepository)
-    val authService: IAuthService = AuthService(tokenService, userRepository, verificationCodeRepository, tokenRepository)
-
+    val tokenCleanupService = TokenCleanupService(refreshTokenRepository)
+    val authService: IAuthService = AuthService(tokenService, userRepository, verificationCodeRepository, refreshTokenRepository)
     // 启动应用...
     verificationCodesCleanupService.startCleanupJob()
     tokenCleanupService.startCleanupJob()
-
     authRoutes(authService)
     communityRoutes(
         postService,
@@ -101,5 +94,9 @@ fun Application.module() {
         favoriteService
     )
     // 应用关闭前
-    verificationCodesCleanupService.stopCleanupJob()
+    environment.monitor.subscribe(ApplicationStopping) {
+        // 停止清理任务
+        verificationCodesCleanupService.stopCleanupJob()
+        tokenCleanupService.stopCleanupJob()
+    }
 }

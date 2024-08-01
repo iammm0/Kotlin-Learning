@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid).apply(false)
     alias(libs.plugins.kotlinMultiplatform).apply(false)
     alias(libs.plugins.kotlinCocoapods).apply(false)
-    alias(libs.plugins.kotlinxSerialization).apply(false) // 添加这一行
+    alias(libs.plugins.kotlinxSerialization).apply(false)
 }
 
 buildscript {

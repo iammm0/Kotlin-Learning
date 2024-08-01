@@ -1,6 +1,5 @@
 package com.example.services.dataAccessServices.auth
 
-import IAuthTokenRepository
 import IUserRepository
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.models.transmissionModels.auth.requests.AddAccountRequest
@@ -23,7 +22,7 @@ class AuthService(
     private val tokenService: ITokenService, // 注入TokenService
     private val userRepository: IUserRepository,
     private val verificationCodeRepository: IVerificationCodeRepository,
-    private val tokenRepository: IAuthTokenRepository
+    private val refreshTokenRepository: IRefreshTokenRepository
 ) : IAuthService {
 
     override fun registerUser(registrationRequest: RegistrationRequest): RegistrationResponse {
@@ -70,8 +69,9 @@ class AuthService(
 
         // 生成JWT令牌
         val token = tokenService.generateToken(newUser)
+        val refreshToken = refreshTokenRepository.generateRefreshToken(newUser)
 
-        return RegistrationResponse(success = true, message = "注册成功", userId = newUser.userId, token = token)
+        return RegistrationResponse(success = true, message = "注册成功", userId = newUser.userId, token = token, refreshToken = refreshToken)
     }
 
     override fun sendVerificationCode(identifier: String, transData: SendCodeRequest): SendCodeResponse {
@@ -97,7 +97,7 @@ class AuthService(
             // 如果既不是电话号码也不是电子邮件地址，抛出异常或返回错误响应
             SendCodeResponse(
                 success = false,
-                message = "Invalid identifier format."
+                message = "无效的邮箱地址或手机号码"
             )
         }
     }
@@ -106,6 +106,7 @@ class AuthService(
         val user = userRepository.findUserByEmailOrPhone(identifier) ?: return LoginResponse(
             success = false,
             token = null,
+            refreshToken = null,
             errorMessage = "用户名或密码错误"
         )
 
@@ -113,29 +114,58 @@ class AuthService(
             return LoginResponse(
                 success = false,
                 token = null,
+                refreshToken = null,
                 errorMessage = "用户名或密码错误"
             )
         }
 
-        val token = tokenService.generateToken(user)
-        return LoginResponse(success = true, token = token, errorMessage = null)
+        val accessToken = tokenService.generateToken(user)
+        val refreshToken = refreshTokenRepository.generateRefreshToken(user)
+        return LoginResponse(
+            success = true,
+            token = accessToken,
+            refreshToken = refreshToken,
+            errorMessage = null
+        )
     }
 
     override fun loginWithVerificationCode(identifier: String, code: String): LoginResponse {
         val user = userRepository.findUserByEmailOrPhone(identifier)
-            ?: return LoginResponse(success = false, token = null, errorMessage = "用户不存在")
+            ?: return LoginResponse(success = false, token = null, refreshToken = null,errorMessage = "用户不存在")
 
-        val verifiedIdentifier = user.email ?: user.phone ?: return LoginResponse(success = false, token = null, errorMessage = "无效的用户标识")
+        val verifiedIdentifier = user.email ?: user.phone ?: return LoginResponse(success = false, token = null, refreshToken = null,errorMessage = "无效的用户标识")
 
         val isValidCode = verificationCodeRepository.verifyCode(verifiedIdentifier, code)
         return if (isValidCode) {
-            val token = tokenService.generateToken(user)
+            val accessToken = tokenService.generateToken(user)
+            val refreshToken = refreshTokenRepository.generateRefreshToken(user)
             verificationCodeRepository.deleteExpiredVerificationCodes()
-            LoginResponse(success = true, token = token, errorMessage = null)
+            LoginResponse(success = true, token = accessToken, refreshToken = refreshToken, errorMessage = null)
         } else {
-            LoginResponse(success = false, token = null, errorMessage = "验证码无效或已过期")
+            LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "验证码无效或已过期")
         }
     }
+
+    override fun refreshToken(refreshToken: String): LoginResponse {
+        val userId = refreshTokenRepository.getUserIdFromToken(refreshToken)
+            ?: return LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "无效的刷新令牌")
+
+        if (!refreshTokenRepository.validateRefreshToken(refreshToken)) {
+            return LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "刷新令牌已过期")
+        }
+
+        val user = userRepository.findUserById(userId)
+            ?: return LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "用户不存在")
+
+        val newAccessToken = tokenService.generateToken(user)
+        val newRefreshToken = refreshTokenRepository.generateRefreshToken(user)
+
+        // 可以选择撤销旧的刷新令牌
+        refreshTokenRepository.deleteRefreshToken(refreshToken)
+
+        return LoginResponse(success = true, token = newAccessToken, refreshToken = newRefreshToken, errorMessage = null)
+    }
+
 
     override fun verifyCode(identifier: String, code: String): Boolean {
         // 使用IVerificationCodeRepository的方法来验证验证码
@@ -157,8 +187,9 @@ class AuthService(
     }
 
     override fun logout(userId: String): Boolean {
-        return tokenRepository.deleteTokensByUserId(userId)
+        TODO("Not yet implemented")
     }
+
 
     override fun changeAvatar(userId: String, avatarUrl: String): Boolean {
         return userRepository.updateUserAvatar(userId, avatarUrl)

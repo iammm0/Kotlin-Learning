@@ -1,9 +1,9 @@
 package com.example.services
 
-import IAuthTokenRepository
+import com.example.repositories.auth.IRefreshTokenRepository
 import kotlinx.coroutines.*
 
-class TokenCleanupService(private val repository: IAuthTokenRepository) {
+class TokenCleanupService(private val repository: IRefreshTokenRepository) {
     private val job = Job()
     private val scope = CoroutineScope(job + Dispatchers.Default)
 

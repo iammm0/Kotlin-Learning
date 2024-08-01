@@ -54,10 +54,10 @@ fun Application.authRoutes(
                         val response = authService.loginWithVerificationCode(loginRequest.email, loginRequest.emailCode)
                         call.respond(response)
                     } else {
-                        call.respond(HttpStatusCode.BadRequest, LoginResponse(success = false, token = null, errorMessage = "验证码无效或已过期"))
+                        call.respond(HttpStatusCode.BadRequest, LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "验证码无效或已过期"))
                     }
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, LoginResponse(success = false, token = null, errorMessage = "登录失败: ${e.localizedMessage}"))
+                    call.respond(HttpStatusCode.InternalServerError, LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "登录失败: ${e.localizedMessage}"))
                 }
             }
 
@@ -71,10 +71,10 @@ fun Application.authRoutes(
                         val response = authService.loginWithVerificationCode(loginRequest.phone, loginRequest.phoneCode)
                         call.respond(response)
                     } else {
-                        call.respond(HttpStatusCode.BadRequest, LoginResponse(success = false, token = null, errorMessage = "验证码无效或已过期"))
+                        call.respond(HttpStatusCode.BadRequest, LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "验证码无效或已过期"))
                     }
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, LoginResponse(success = false, token = null, errorMessage = "登录失败: ${e.localizedMessage}"))
+                    call.respond(HttpStatusCode.InternalServerError, LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "登录失败: ${e.localizedMessage}"))
                 }
             }
 
@@ -99,7 +99,7 @@ fun Application.authRoutes(
                     val response = authService.loginWithPassword(loginRequest.identifier, loginRequest.password)
                     call.respond(response)
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, LoginResponse(success = false, token = null, errorMessage = "登录失败: ${e.localizedMessage}"))
+                    call.respond(HttpStatusCode.InternalServerError, LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "登录失败: ${e.localizedMessage}"))
                 }
             }
 
