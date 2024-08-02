@@ -1,25 +1,27 @@
 package com.example.services.dataAccessServices.store
 
 import com.example.models.transmissionModels.store.product.Category
+import com.example.repositories.store.ICategoryRepository
 
-class CategoryService : ICategoryService {
+class CategoryService(private val categoryRepository: ICategoryRepository) : ICategoryService {
+
     override fun addCategory(category: Category): Category {
-        TODO("Not yet implemented")
+        return categoryRepository.add(category)
     }
 
     override fun getAllCategories(): List<Category> {
-        TODO("Not yet implemented")
+        return categoryRepository.findAll().filterNotNull()
     }
 
     override fun getCategoryById(categoryId: String): Category? {
-        TODO("Not yet implemented")
+        return categoryRepository.findById(categoryId)
     }
 
     override fun updateCategory(category: Category): Category {
-        TODO("Not yet implemented")
+        return categoryRepository.update(category)
     }
 
     override fun deleteCategory(categoryId: String): Boolean {
-        TODO("Not yet implemented")
+        return categoryRepository.delete(categoryId)
     }
 }

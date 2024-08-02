@@ -1,21 +1,23 @@
 package com.example.services.dataAccessServices.store
 
 import com.example.models.transmissionModels.store.product.ProductVariant
+import com.example.repositories.store.IProductVariantRepository
 
-class ProductVariantService : IProductVariantService {
+class ProductVariantService(private val productVariantRepository: IProductVariantRepository) : IProductVariantService {
+
     override fun findVariantsByProductId(productId: Int): List<ProductVariant> {
-        TODO("Not yet implemented")
+        return productVariantRepository.findByProductId(productId.toString())
     }
 
     override fun addProductVariant(variant: ProductVariant): ProductVariant {
-        TODO("Not yet implemented")
+        return productVariantRepository.add(variant)
     }
 
     override fun updateProductVariant(variant: ProductVariant): ProductVariant {
-        TODO("Not yet implemented")
+        return productVariantRepository.update(variant)
     }
 
     override fun deleteProductVariant(variantId: String): Boolean {
-        TODO("Not yet implemented")
+        return productVariantRepository.delete(variantId)
     }
 }

@@ -1,25 +1,27 @@
 package com.example.services.dataAccessServices.store
 
 import com.example.models.transmissionModels.store.bag.BagItem
+import com.example.repositories.store.IStoreBagRepository
 
-class StoreBagService : IStoreBagService {
+class StoreBagService(private val storeBagRepository: IStoreBagRepository) : IStoreBagService {
+
     override fun addItemToBag(bagId: String, item: BagItem): BagItem {
-        TODO("Not yet implemented")
+        return storeBagRepository.addItemToBag(bagId, item)
     }
 
     override fun removeItemFromBag(bagId: String, itemId: Int): Boolean {
-        TODO("Not yet implemented")
+        return storeBagRepository.removeItemFromBag(bagId, itemId)
     }
 
     override fun updateItemQuantity(bagId: String, itemId: Int, quantity: Int): BagItem? {
-        TODO("Not yet implemented")
+        return storeBagRepository.updateItemQuantity(bagId, itemId, quantity)
     }
 
     override fun findItemsByBagId(bagId: String): List<BagItem> {
-        TODO("Not yet implemented")
+        return storeBagRepository.findItemsByCartId(bagId)
     }
 
     override fun clearBag(bagId: String): Boolean {
-        TODO("Not yet implemented")
+        return storeBagRepository.clearBag(bagId)
     }
 }

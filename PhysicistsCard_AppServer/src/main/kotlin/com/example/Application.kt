@@ -76,9 +76,11 @@ fun Application.module() {
     val tokenService: ITokenService = JwtITokenService(jwtSecret, jwtIssuer, jwtValidityInMs)
     val tokenCleanupService = TokenCleanupService(refreshTokenRepository)
     val authService: IAuthService = AuthService(tokenService, userRepository, verificationCodeRepository, refreshTokenRepository)
+
     // 启动应用...
     verificationCodesCleanupService.startCleanupJob()
     tokenCleanupService.startCleanupJob()
+
     authRoutes(authService)
     communityRoutes(
         postService,

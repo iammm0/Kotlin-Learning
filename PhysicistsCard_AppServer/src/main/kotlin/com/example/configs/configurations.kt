@@ -16,24 +16,36 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.doublereceive.*
 import io.ktor.server.plugins.methodoverride.*
+import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.websocket.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import org.slf4j.event.Level
 import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 fun Application.configurations() {
 
-    install(AutoHeadResponse)
+    install(DoubleReceive) // 允许处理multipart/form-data请求
 
-    install(XHttpMethodOverride)
+    install(RateLimit) { // 配置限流
+        global {
+            rateLimiter(limit = 5, refillPeriod = 60.seconds)
+        }
+    }
 
-    install(WebSockets) {
+    install(AutoHeadResponse) // 自动处理HEAD请求
+
+    install(XHttpMethodOverride) // 允许使用X-HTTP-Method-Override头字段来覆盖HTTP方法
+
+    install(WebSockets) { // 配置WebSocket
         contentConverter = KotlinxWebsocketSerializationConverter(Json)
         pingPeriod = Duration.ofMinutes(1)
         timeout = Duration.ofSeconds(15)
@@ -56,6 +68,7 @@ fun Application.configurations() {
         }
     }
 
+    // 配置内容协商
     install(ContentNegotiation) {
         json(Json {
             prettyPrint = true
@@ -76,6 +89,7 @@ fun Application.configurations() {
 
     val algorithm = Algorithm.HMAC256(jwtSecret)
 
+    // 配置JWT认证
     install(Authentication) {
         jwt {
             this.realm = jwtRealm
@@ -93,12 +107,12 @@ fun Application.configurations() {
                 }
             }
             challenge { _, _ ->
-                call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
+                call.respond(HttpStatusCode.Unauthorized, "令牌无效或已过期")
             }
         }
     }
 
-    // // 配置错误 HTML 响应文件
+    // 配置错误 HTML 响应文件
     // install(StatusPages) {
     //     statusFile(HttpStatusCode.Unauthorized, HttpStatusCode.PaymentRequired, filePattern = "error#.html")
     // }

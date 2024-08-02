@@ -14,7 +14,7 @@ class ProductService(private val productRepository: IProductRepository) : IProdu
     }
 
     override fun getAllProducts(): List<Product> {
-        TODO("Not yet implemented")
+        return productRepository.findAll().filterNotNull()
     }
 
     override fun updateProduct(product: Product): Product {
@@ -26,10 +26,12 @@ class ProductService(private val productRepository: IProductRepository) : IProdu
     }
 
     override fun getProductsByCategory(categoryId: String): List<Product> {
-        TODO("Not yet implemented")
+        // 这里需要categoryRepository的实现来获取产品类别信息
+        return emptyList()
     }
 
     override fun searchProducts(keywords: String): List<Product> {
-        TODO("Not yet implemented")
+        // 这里实现搜索逻辑，可能需要全文检索库如ElasticSearch
+        return emptyList()
     }
 }

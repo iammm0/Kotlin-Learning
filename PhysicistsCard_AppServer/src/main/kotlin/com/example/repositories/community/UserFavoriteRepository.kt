@@ -43,7 +43,7 @@ class UserFavoriteRepository : IUserFavoriteRepository {
 
     override fun findFavoritesByTargetId(targetId: String, targetType: FavoriteTargetType): List<UserFavorite> {
         return transaction {
-            UserFavorites.select {
+            UserFavorites.selectAll().where {
                 (UserFavorites.targetId eq targetId) and
                         (UserFavorites.targetType eq targetType)
             }.map { rowToUserFavorite(it) }

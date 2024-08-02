@@ -1,3 +1,5 @@
+import java.util.*
+
 val logbackVersion: String by project
 val kotlinVersion: String by project
 val exposedVersion: String by project
@@ -49,7 +51,21 @@ repositories {
     mavenCentral()
 }
 
+val osName = System.getProperty("os.name").lowercase(Locale.getDefault())
+val tcnativeClassifier = when {
+    osName.contains("win") -> "windows-x86_64"
+    osName.contains("linux") -> "linux-x86_64"
+    osName.contains("mac") -> "osx-x86_64"
+    else -> null
+}
+
 dependencies {
+    // 在 Netty 中启用 HTTP/2 支持
+    if (tcnativeClassifier != null) {
+        implementation("io.netty:netty-tcnative-boringssl-static:$tcnativeVersion:$tcnativeClassifier")
+    } else {
+        implementation("io.netty:netty-tcnative-boringssl-static:$tcnativeVersion")
+    }
     // 依赖注入
     implementation("io.insert-koin:koin-core:$koinVersion")
     implementation("io.insert-koin:koin-core-jvm:$koinVersion")
@@ -68,7 +84,6 @@ dependencies {
     implementation("com.aliyun:aliyun-java-sdk-dysmsapi:$aliyunJavaSdkDysmsapiVersion")
     // 日志管理
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-
     // 数据库和JDBC
     implementation("org.postgresql:postgresql:$postgresqlVersion") // PostgresSQL数据库驱动
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion") // Exposed框架核心
@@ -96,6 +111,9 @@ dependencies {
     implementation("io.ktor:ktor-server-auto-head-response:$ktorVersion") // 自动头响应
     implementation("io.ktor:ktor-server-method-override:$ktorVersion") // Http方法重构
     implementation("io.ktor:ktor-server-websockets-jvm:$ktorVersion") // 交互式通讯
+    implementation("io.ktor:ktor-server-request-validation:$ktorVersion") // 请求验证
+    implementation("io.ktor:ktor-server-rate-limit:$ktorVersion") // 请求限流
+    implementation("io.ktor:ktor-server-double-receive:$ktorVersion") // 双重接收
 
     // Ktor客户端
     implementation("io.ktor:ktor-client-core:$ktorVersion") // Ktor客户端核心

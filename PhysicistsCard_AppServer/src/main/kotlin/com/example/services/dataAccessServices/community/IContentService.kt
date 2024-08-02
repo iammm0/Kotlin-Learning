@@ -1,6 +1,9 @@
 package com.example.services.dataAccessServices.community
 
 import com.example.models.transmissionModels.community.post.Content
+import com.example.models.transmissionModels.community.post.ImageContent
+import com.example.models.transmissionModels.community.post.TextContent
+import com.example.models.transmissionModels.community.post.VideoContent
 
 interface IContentService {
     /**
@@ -10,7 +13,7 @@ interface IContentService {
      * @param content 内容对象
      * @return 添加内容是否成功
      */
-    fun addContentToPost(postId: String, content: Content): Boolean
+    fun addContentToPost(postId: String, content: Content, imageContent: ImageContent, textContent: TextContent, videoContent: VideoContent): Boolean
 
     /**
      * 从帖子中移除指定的内容项

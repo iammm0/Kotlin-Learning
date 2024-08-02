@@ -1,12 +1,10 @@
 package com.example.routes.auth
 
-import com.example.models.databaseTableModels.auth.user.Users.role
 import com.example.models.transmissionModels.auth.requests.*
 import com.example.models.transmissionModels.auth.responses.LoginResponse
 import com.example.models.transmissionModels.auth.responses.ResetPasswordResponse
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
 import com.example.models.transmissionModels.auth.user.Role
-import com.example.models.transmissionModels.auth.user.User
 import com.example.services.dataAccessServices.auth.IAuthService
 import com.example.utils.hasRole
 import io.ktor.http.*

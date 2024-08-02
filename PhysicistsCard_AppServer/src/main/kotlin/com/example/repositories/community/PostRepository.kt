@@ -121,10 +121,14 @@ class PostRepository : IPostRepository {
         )
 
     private fun getPostTags(postId: String): List<String> = transaction {
-        PostTagRelations.join(PostTags, JoinType.INNER, additionalConstraint = { PostTagRelations.tagId eq PostTags.id })
+        PostTagRelations.join(
+            PostTags,
+            JoinType.INNER,
+            additionalConstraint = { PostTagRelations.tagId eq PostTags.id })
             .selectAll().where { PostTagRelations.postId eq postId.toInt() }
             .map { it[PostTags.name] }
     }
+
     // 在数据库层面获取推送内容详情
     private fun getPostContents(postId: String): List<Content> = transaction {
         val intPostId = postId.toInt()  // 将 postId 字符串转为整数
@@ -147,6 +151,7 @@ class PostRepository : IPostRepository {
                         contents.add(textContent)
                     }
                 }
+
                 ContentType.ImageContent -> {
                     val imageContent = ImageContents.selectAll()
                         .where { ImageContents.contentId eq row[Contents.contentId] }
@@ -161,6 +166,7 @@ class PostRepository : IPostRepository {
                         contents.add(imageContent)
                     }
                 }
+
                 ContentType.VideoContent -> {
                     val videoContent = VideoContents.selectAll()
                         .where { VideoContents.contentId eq row[Contents.contentId] }

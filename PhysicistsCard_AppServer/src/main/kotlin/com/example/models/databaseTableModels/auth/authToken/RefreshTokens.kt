@@ -3,7 +3,6 @@ package com.example.models.databaseTableModels.auth.authToken
 import com.example.models.databaseTableModels.auth.user.Users
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
-import org.jetbrains.exposed.sql.javatime.timestamp
 
 object RefreshTokens : Table("RefreshTokens") {
     val tokenId = varchar("tokenId", 50)
