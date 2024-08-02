@@ -1,6 +1,5 @@
 package com.example.physicistscard.android.activities
 
-import AuthViewModel
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,8 +13,6 @@ import com.example.physicistscard.android.ui.components.SystemUiController
 import com.example.physicistscard.android.ui.components.navigation.AuthNavigation
 import com.example.physicistscard.android.ui.themes.MyApplicationTheme
 import android.Manifest
-import androidx.activity.viewModels
-import com.example.physicistscard.android.ui.screens.authScreens.AuthViewModelFactory
 import com.example.physicistscard.businessLogic.IAuthService
 import org.koin.android.ext.android.inject
 
@@ -29,12 +26,6 @@ class AuthActivity : ComponentActivity() {
 
     // 使用 Koin 注入 IAuthService
     private val authService: IAuthService by inject()
-
-    // 注入 ViewModel
-    private val authViewModel: AuthViewModel by viewModels {
-        AuthViewModelFactory(authService)
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
