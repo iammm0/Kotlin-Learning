@@ -7,14 +7,16 @@ import com.aliyuncs.profile.DefaultProfile
 import com.example.models.transmissionModels.auth.verificationCodes.VerificationType
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
 import com.example.repositories.auth.VerificationCodeRepository
+import com.typesafe.config.ConfigFactory
 import java.util.concurrent.ThreadLocalRandom
 
 class AliyunEmailService {
-    private val regionId = "cn-hangzhou" // 根据实际情况填写
-    private val accessKeyId = "LTAI5t67b92fs7a2azKG8KfL"
-    private val secret = "5vOL1hXlOeEt2JDC07X3612M5rcGzg"
-    private val fromAddress = "physicistscard@datianersi.cn"
-    private val subject = "PHYSICISTS CARD 验证消息"
+    private val config = ConfigFactory.load()
+    private val regionId = config.getString("ktor.services.aliyunEmail.regionId")
+    private val accessKeyId = config.getString("ktor.services.aliyunEmail.accessKeyId")
+    private val secret = config.getString("ktor.services.aliyunEmail.secret")
+    private val fromAddress = config.getString("ktor.services.aliyunEmail.fromAddress")
+    private val subject = config.getString("ktor.services.aliyunEmail.subject")
     private val verificationCode = VerificationCodeRepository()
 
     private fun generateRandomCode(): String {

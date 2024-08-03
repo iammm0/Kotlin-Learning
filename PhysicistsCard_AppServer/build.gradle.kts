@@ -17,7 +17,6 @@ val coroutinesVersion: String by project
 val mockkVersion: String by project
 val testcontainersVersion: String by project
 val hikariCPVersion: String by project
-val flywayVersion: String by project
 val lettuceVersion: String by project
 val kafkaVersion: String by project
 val elasticsearchVersion: String by project
@@ -28,6 +27,7 @@ val aliyunJavaSdkDmVersion: String by project
 val aliyunJavaSdkCoreVersion: String by project
 val aliyunJavaSdkDysmsapiVersion: String by project
 val koinVersion: String by project
+val liquibaseVersion: String by project
 
 
 
@@ -60,6 +60,8 @@ val tcnativeClassifier = when {
 }
 
 dependencies {
+
+
     // 在 Netty 中启用 HTTP/2 支持
     if (tcnativeClassifier != null) {
         implementation("io.netty:netty-tcnative-boringssl-static:$tcnativeVersion:$tcnativeClassifier")
@@ -92,7 +94,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-java-time:$javatimeVersion") // Java时间API支持
     // 数据库扩展
     implementation("com.zaxxer:HikariCP:$hikariCPVersion") // // HikariCP连接池
-    implementation("org.flywaydb:flyway-core:$flywayVersion") // 数据库迁移和版本控制工具
+    implementation("org.liquibase:liquibase-core:$liquibaseVersion")  // 数据库迁移和版本控制工具
     implementation("io.lettuce:lettuce-core:$lettuceVersion") //  Redis：用于缓存、会话存储，减轻数据库负载，快速响应用户请求
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion") // 用于处理异步消息，如订单处理、邮件发送、用户通知等
     // ktor协程支持
@@ -120,6 +122,7 @@ dependencies {
     implementation("io.ktor:ktor-client-json:$ktorVersion") // JSON支持
     implementation("io.ktor:ktor-client-serialization:$ktorVersion") // 客户端序列化
     implementation("io.ktor:ktor-client-cio:$ktorVersion") // CIO引擎支持
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion") // 内容协商
 
     // 安全性和密码哈希
     implementation("at.favre.lib:bcrypt:0.10.2") // 密码哈希库

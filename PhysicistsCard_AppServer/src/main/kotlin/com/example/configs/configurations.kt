@@ -15,14 +15,12 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.callloging.*
-import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.doublereceive.*
 import io.ktor.server.plugins.methodoverride.*
 import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.websocket.*
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -69,7 +67,7 @@ fun Application.configurations() {
     }
 
     // 配置内容协商
-    install(ContentNegotiation) {
+    install(io.ktor.server.plugins.contentnegotiation.ContentNegotiation) {
         json(Json {
             prettyPrint = true
             isLenient = true
@@ -111,6 +109,7 @@ fun Application.configurations() {
             }
         }
     }
+
 
     // 配置错误 HTML 响应文件
     // install(StatusPages) {

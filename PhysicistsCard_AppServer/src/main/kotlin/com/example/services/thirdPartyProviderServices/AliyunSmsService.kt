@@ -9,14 +9,16 @@ import com.aliyuncs.profile.DefaultProfile
 import com.example.models.transmissionModels.auth.verificationCodes.VerificationType
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
 import com.example.repositories.auth.VerificationCodeRepository
+import com.typesafe.config.ConfigFactory
 import java.util.concurrent.ThreadLocalRandom
 
 class AliyunSmsService {
-    private val regionId = "cn-hangzhou"
-    private val accessKeyId = "LTAI5t67b92fs7a2azKG8KfL" //
-    private val accessKeySecret = "5vOL1hXlOeEt2JDC07X3612M5rcGzg" //
-    private val signName = "大天而思文化交流活动策划" //
-    private val templateCode = "SMS_465409318" //
+    private val config = ConfigFactory.load()
+    private val regionId = config.getString("ktor.services.aliyunSms.regionId")
+    private val accessKeyId = config.getString("ktor.services.aliyunSms.accessKeyId")
+    private val accessKeySecret = config.getString("ktor.services.aliyunSms.accessKeySecret")
+    private val signName = config.getString("ktor.services.aliyunSms.signName")
+    private val templateCode = config.getString("ktor.services.aliyunSms.templateCode")
     private val verificationCode = VerificationCodeRepository()
 
 
