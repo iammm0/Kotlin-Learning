@@ -4,62 +4,50 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.physicistscard.android.ui.components.layouts.TopAppBar
-
-data class Friend(
-    val id: Int,
-    val name: String,
-    val status: String
-)
-
-val friends = listOf(
-    Friend(1, "张子洋", "Online"),
-    Friend(2, "蒋鸿杰", "Online"),
-    Friend(3, "李培梁", "Online"),
-    Friend(4, "王芃匀", "Online"),
-    Friend(5, "尹炳杰", "Online"),
-    Friend(6, "赵明俊", "Online"),
-)
+import com.example.physicistscard.android.ui.screens.chatScreens.chatui.AvatarImage
+import com.example.physicistscard.transmissionModels.auth.user.User
 
 @Composable
-fun UserFriendsScreen(navController: NavController) {
-
+fun UserFriendsScreen(navController: NavController, friends: List<User>) {
     LazyColumn {
         item {
             TopAppBar(text = "好友")
         }
-        items(friends) {friend ->
+        items(friends) { friend ->
             FriendItem(friend) {
-                navController.navigate("friend_profile/${friend.id}")
+                navController.navigate("chat/${friend.userId}")
             }
         }
     }
 }
 
+
 @Composable
-fun FriendItem(friend: Friend, onClick: (Friend) -> Unit) {
-    Card(
+fun FriendItem(friend: User, onClick: () -> Unit) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick(friend) }
-            .padding(vertical = 8.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .clickable { onClick() }
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp)) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(friend.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(friend.status, style = MaterialTheme.typography.bodyMedium)
-            }
+        AvatarImage(avatarUrl = friend.avatarUrl, modifier = Modifier.size(40.dp))
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            Text(friend.displayName ?: friend.username, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                if (friend.isOnline) "在线" else "最后在线时间: ${friend.lastActive}",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (friend.isOnline) Color.Green else Color.Gray
+            )
         }
     }
 }

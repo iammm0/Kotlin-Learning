@@ -73,9 +73,9 @@ fun Application.configurations() {
             isLenient = true
             ignoreUnknownKeys = true  // 忽略未知键，避免解析错误
             coerceInputValues = true  // 尝试转换不匹配的值而不是抛出异常
-            useArrayPolymorphism = true // 启用数组多态性
+            useArrayPolymorphism = false // 启用数组多态性
             serializersModule = module
-            classDiscriminator = "type" // 更改鉴别器字段名，避免与数据类字段冲突
+            classDiscriminator = "contentClass" // 更改鉴别器字段名，避免与数据类字段冲突
         })
     }
 

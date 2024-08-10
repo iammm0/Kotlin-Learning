@@ -23,11 +23,11 @@ object DatabaseConfig {
         val dataSource = HikariDataSource(config)
 
         // 初始化 Liquibase 并执行迁移
-        dataSource.connection.use { connection ->
-            val database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(JdbcConnection(connection))
-            val liquibase = Liquibase("liquibase/changelog-master.xml", ClassLoaderResourceAccessor(), database)
-            liquibase.update("")
-        }
+        // dataSource.connection.use { connection ->
+        //     val database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(JdbcConnection(connection))
+        //     val liquibase = Liquibase("liquibase/changelog-master.xml", ClassLoaderResourceAccessor(), database)
+        //     liquibase.update("")
+        // }
 
         Database.connect(dataSource)
     }

@@ -27,9 +27,6 @@ import com.example.services.dataAccessServices.store.IOrderService
 import com.example.services.dataAccessServices.store.IProductService
 import com.example.services.dataAccessServices.store.OrderService
 import com.example.services.dataAccessServices.store.ProductService
-import com.example.services.thirdPartyProviderServices.AlipayService
-import com.example.services.thirdPartyProviderServices.SFExpressService
-import com.example.services.thirdPartyProviderServices.WeChatPayService
 import com.example.utils.DatabaseConfig
 import com.example.utils.DatabaseTables
 import com.typesafe.config.ConfigFactory
@@ -106,9 +103,10 @@ fun Application.module() {
     val orderRepository: IOrderRepository = OrderRepository(paymentInfoRepository, shippingInfoRepository)
     val userFavoriteRepository: IUserFavoriteRepository = UserFavoriteRepository()
     val refreshTokenRepository: IRefreshTokenRepository = RefreshTokenRepository()
+    val contentService: IContentService = ContentService()
 
     val verificationCodesCleanupService = VerificationCodesCleanupService(verificationCodeRepository)
-    val postService: IPostService = PostService(postRepository)
+    val postService: IPostService = PostService(postRepository, contentService)
     val commentService: IUserCommentService = UserCommentService(userCommentRepository)
     val likeService: IUserLikeService = UserLikeService(userLikeRepository)
     val favoriteService: IUserFavoriteService = UserFavoriteService(userFavoriteRepository)

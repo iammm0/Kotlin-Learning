@@ -11,4 +11,3 @@ data class RegistrationRequest(
     val code: String,
     val role: Role
 )
-

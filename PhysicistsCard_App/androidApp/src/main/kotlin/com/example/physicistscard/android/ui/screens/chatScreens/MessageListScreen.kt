@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,14 +39,24 @@ fun UserInteractionsScreen(navController: NavController) {
         MessagePreview(2, "Newton", "跌倒了，爬起来。", "1 hour ago")
     )
 
-    LazyColumn {
-        item {
-            TopAppBar(text = "消息")
-        }
+    Column {
+        TopAppBar(text = "消息")
 
-        items(messages) {message ->
-            MessageItem(message) {
-                navController.navigate("chat/${message.id}")
+        // 搜索栏
+        TextField(
+            value = "",
+            onValueChange = { /* Implement search functionality */ },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            placeholder = { Text("搜索用户") }
+        )
+
+        LazyColumn {
+            items(messages) { message ->
+                MessageItem(message) {
+                    navController.navigate("chat/${message.id}")
+                }
             }
         }
     }

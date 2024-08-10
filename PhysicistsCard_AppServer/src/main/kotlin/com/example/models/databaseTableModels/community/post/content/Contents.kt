@@ -1,13 +1,15 @@
 package com.example.models.databaseTableModels.community.post.content
 
+import com.example.models.databaseTableModels.community.post.mPost.Posts
 import com.example.models.transmissionModels.community.post.ContentType
+import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
 
-object Contents : Table("Contents") {
-    val contentId = integer("contentId").autoIncrement()
-    val postId = integer("postId").references(com.example.models.databaseTableModels.community.post.mPost.Posts.id)
-    val type = enumerationByName("type", 10, ContentType::class)
-    val order = integer("order") // 内容在帖子中的顺序
-    override val primaryKey = PrimaryKey(contentId, name = "PK_Contents_contentId")
+// Contents 表使用 UUID 作为主键
+object Contents : UUIDTable() {
+    val postId = reference("postId", Posts.id, onDelete = ReferenceOption.CASCADE) // 引用 Posts 表的主键
+    val type = varchar("type", 50)
+    val order = integer("contentOrder")
 }
 
