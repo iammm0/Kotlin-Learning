@@ -92,6 +92,7 @@ fun Application.module() {
     // val weChatPayService = WeChatPayService(client, weChatPayApiKey, weChatPayMchId, weChatPayAppId, weChatPayAppSecret)
     // val alipayService = AlipayService(client, alipayApiKey, alipayAppId, alipayAppPrivateKey, alipayPublicKey)
 
+    val merchantApplicationRepository: IMerchantApplicationRepository = MerchantApplicationRepository()
     val userRepository: IUserRepository = UserRepository()
     val postRepository: IPostRepository = PostRepository()
     val verificationCodeRepository: IVerificationCodeRepository = VerificationCodeRepository()
@@ -103,8 +104,10 @@ fun Application.module() {
     val orderRepository: IOrderRepository = OrderRepository(paymentInfoRepository, shippingInfoRepository)
     val userFavoriteRepository: IUserFavoriteRepository = UserFavoriteRepository()
     val refreshTokenRepository: IRefreshTokenRepository = RefreshTokenRepository()
-    val contentService: IContentService = ContentService()
+    val postStatsRepository: IPostStatsRepository = PostStatsRepository()
 
+    val postStatService: IPostStatService = PostStatService(postStatsRepository)
+    val contentService: IContentService = ContentService()
     val verificationCodesCleanupService = VerificationCodesCleanupService(verificationCodeRepository)
     val postService: IPostService = PostService(postRepository, contentService)
     val commentService: IUserCommentService = UserCommentService(userCommentRepository)
@@ -117,7 +120,7 @@ fun Application.module() {
     val jwtValidityInMs = config.getLong("ktor.security.jwt.validityInMs")
     val tokenService: ITokenService = JwtITokenService(jwtSecret, jwtIssuer, jwtValidityInMs)
     val tokenCleanupService = TokenCleanupService(refreshTokenRepository)
-    val authService: IAuthService = AuthService(tokenService, userRepository, verificationCodeRepository, refreshTokenRepository)
+    val authService: IAuthService = AuthService(tokenService, userRepository, verificationCodeRepository, refreshTokenRepository, merchantApplicationRepository)
 
     // 启动应用...
     verificationCodesCleanupService.startCleanupJob()
@@ -128,7 +131,8 @@ fun Application.module() {
         postService,
         commentService,
         likeService,
-        favoriteService
+        favoriteService,
+        postStatService
     )
     storeRoutes(
         productService,

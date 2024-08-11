@@ -4,7 +4,7 @@ import com.example.models.transmissionModels.community.interaction.FavoriteTarge
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 
-object UserFavorites : Table("UserFavorites") {
+object UserFavorites : Table("userfavorites") {
     val favoriteId = varchar("favoriteId", 50)
     val userId = varchar("userId", 50)
     val targetId = varchar("targetId", 50)
@@ -12,4 +12,8 @@ object UserFavorites : Table("UserFavorites") {
     val createdAt = datetime("createdAt")
 
     override val primaryKey = PrimaryKey(favoriteId, name = "PK_UserFavorites_FavoriteId")
+
+    init {
+        uniqueIndex(userId, targetId, targetType)  // 添加唯一性约束
+    }
 }

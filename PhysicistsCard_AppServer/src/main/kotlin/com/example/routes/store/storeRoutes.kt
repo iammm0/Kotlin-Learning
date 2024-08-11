@@ -1,8 +1,6 @@
 package com.example.routes.store
 
-import com.example.models.transmissionModels.community.interaction.CommentTargetType
-import com.example.models.transmissionModels.community.interaction.FavoriteTargetType
-import com.example.models.transmissionModels.community.interaction.LikeTargetType
+import com.example.models.transmissionModels.community.interaction.*
 import com.example.models.transmissionModels.store.bag.BagItem
 import com.example.models.transmissionModels.store.order.Order
 import com.example.models.transmissionModels.store.payment.PaymentInfo
@@ -12,9 +10,12 @@ import com.example.services.dataAccessServices.store.IProductService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.time.LocalDateTime
+import java.util.*
 
 fun Application.storeRoutes(
     productService: IProductService,
@@ -24,10 +25,9 @@ fun Application.storeRoutes(
     favoriteService: IUserFavoriteService
 ) {
     routing {
-
         authenticate {
             route("/store/products") {
-                // **浏览商品栏目**
+                // 浏览商品栏目
                 get("/") {
                     try {
                         call.respond(HttpStatusCode.OK, productService.getAllProducts())
@@ -36,7 +36,7 @@ fun Application.storeRoutes(
                     }
                 }
 
-                // **获取特定商品详情**
+                // 获取特定商品详情
                 get("/{productId}") {
                     val productId = call.parameters["productId"] ?: return@get call.respond(HttpStatusCode.BadRequest, "无效的产品ID")
                     try {
@@ -51,7 +51,7 @@ fun Application.storeRoutes(
                     }
                 }
 
-                // **搜索和筛选商品**
+                // 搜索和筛选商品
                 get("/search") {
                     val query = call.request.queryParameters["query"] ?: return@get call.respond(HttpStatusCode.BadRequest, "缺少搜索关键字")
                     try {
@@ -62,10 +62,7 @@ fun Application.storeRoutes(
                     }
                 }
             }
-        }
 
-        authenticate {
-            // 订单相关的API端点
             route("/store/orders") {
                 // 创建订单
                 post("/") {
@@ -94,7 +91,8 @@ fun Application.storeRoutes(
                 // 获取订单列表
                 get("/") {
                     try {
-                        val userId = call.request.queryParameters["userId"] ?: return@get call.respond(HttpStatusCode.BadRequest, "缺少用户ID")
+                        val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+                            ?: return@get call.respond(HttpStatusCode.BadRequest, "缺少用户ID")
                         val orders = orderService.getOrdersByUserId(userId)
                         call.respond(HttpStatusCode.OK, orders)
                     } catch (e: Exception) {
@@ -116,29 +114,25 @@ fun Application.storeRoutes(
                     }
                 }
             }
-        }
 
-        authenticate {
-            // 购物卡袋相关
+            // 购物车相关的路由
             route("/store/bags") {
-                // **创建购物卡袋**
                 post("/") {
-
+                    // 创建购物车袋的逻辑
                 }
-                // **将商品添加到购物卡袋**
                 post("/{cartId}/add") {
                     try {
-                        call.receive<BagItem>()
+                        val bagItem = call.receive<BagItem>()
                         // 添加到购物袋的逻辑
                         call.respond(HttpStatusCode.Created, "商品已添加到购物袋")
                     } catch (e: Exception) {
                         call.respond(HttpStatusCode.BadRequest, "添加商品到购物袋失败: ${e.localizedMessage}")
                     }
                 }
-                // **获取购物车详情**
                 get("/") {
                     try {
-                        val userId = call.request.queryParameters["userId"] ?: return@get call.respond(HttpStatusCode.BadRequest, "缺少用户ID")
+                        val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+                            ?: return@get call.respond(HttpStatusCode.BadRequest, "缺少用户ID")
                         // 获取购物袋内容的逻辑
                         call.respond(HttpStatusCode.OK, "获取购物袋内容成功")
                     } catch (e: Exception) {
@@ -166,10 +160,10 @@ fun Application.storeRoutes(
                 }
             }
 
-            // 发起处理支付请求
+            // 处理支付请求
             post("/payments") {
                 try {
-                    call.receive<PaymentInfo>()
+                    val paymentInfo = call.receive<PaymentInfo>()
                     // 处理支付请求的逻辑
                     call.respond(HttpStatusCode.Created, "支付请求已处理")
                 } catch (e: Exception) {
@@ -180,7 +174,32 @@ fun Application.storeRoutes(
             route("/store/products/{productId}") {
                 // 发表评论
                 post("/comments") {
+                    val productId = call.parameters["productId"] ?: return@post call.respond(HttpStatusCode.BadRequest, "无效的产品ID")
+                    val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+                        ?: return@post call.respond(HttpStatusCode.BadRequest, "用户ID无效")
+                    try {
+                        // 接收 UserCommentRequest
+                        val commentRequest = call.receive<UserCommentRequest>()
+                        // 将 UserCommentRequest 转换为 UserComment
+                        val comment = UserComment(
+                            commentId = UUID.randomUUID().toString(),  // 自动生成 commentId
+                            userId = userId,  // 从 JWT 中提取的 userId
+                            targetId = productId,  // 使用 productId 作为目标ID
+                            targetType = CommentTargetType.PRODUCT,  // 目标类型为 PRODUCT
+                            content = commentRequest.content,  // 请求体中的评论内容
+                            createdAt = LocalDateTime.now(),  // 设置创建时间
+                            parentId = commentRequest.parentId  // 请求体中的父评论ID（可选）
+                        )
 
+                        val added = commentService.addComment(productId, comment)
+                        if (added) {
+                            call.respond(HttpStatusCode.Created, "评论已添加")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "评论添加失败")
+                        }
+                    } catch (e: Exception) {
+                        call.respond(HttpStatusCode.BadRequest, "添加评论失败: ${e.localizedMessage}")
+                    }
                 }
                 // 获取所有评论
                 get("/comments") {
@@ -195,10 +214,15 @@ fun Application.storeRoutes(
                 // 点赞
                 post("/like") {
                     val productId = call.parameters["productId"] ?: return@post call.respond(HttpStatusCode.BadRequest, "无效的产品ID")
+                    val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+                        ?: return@post call.respond(HttpStatusCode.BadRequest, "用户ID无效")
                     try {
-                        val userId = call.receive<String>()
                         val userLike = likeService.addLike(userId, productId, LikeTargetType.PRODUCT)
-                        call.respond(HttpStatusCode.Created, userLike)
+                        if (userLike != null) {
+                            call.respond(HttpStatusCode.Created, userLike)
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "点赞失败，无法创建点赞记录")
+                        }
                     } catch (e: Exception) {
                         call.respond(HttpStatusCode.BadRequest, "点赞失败: ${e.localizedMessage}")
                     }
@@ -206,8 +230,9 @@ fun Application.storeRoutes(
                 // 取消点赞
                 delete("/like") {
                     val productId = call.parameters["productId"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "无效的产品ID")
+                    val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+                        ?: return@delete call.respond(HttpStatusCode.BadRequest, "用户ID无效")
                     try {
-                        val userId = call.receive<String>()
                         if (likeService.removeLike(userId, productId, LikeTargetType.PRODUCT)) {
                             call.respond(HttpStatusCode.OK, "已取消点赞")
                         } else {
@@ -220,19 +245,22 @@ fun Application.storeRoutes(
                 // 收藏
                 post("/favorite") {
                     val productId = call.parameters["productId"] ?: return@post call.respond(HttpStatusCode.BadRequest, "无效的产品ID")
+                    val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+                        ?: return@post call.respond(HttpStatusCode.BadRequest, "用户ID无效")
                     try {
-                        val userId = call.receive<String>()
                         val userFavorite = favoriteService.addFavorite(userId, productId, FavoriteTargetType.PRODUCT)
-                        call.respond(HttpStatusCode.Created, userFavorite)
+                        call.respond(HttpStatusCode.Created, userFavorite!!)
                     } catch (e: Exception) {
                         call.respond(HttpStatusCode.BadRequest, "收藏失败: ${e.localizedMessage}")
                     }
                 }
+
                 // 取消收藏
                 delete("/favorite") {
                     val productId = call.parameters["productId"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "无效的产品ID")
+                    val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+                        ?: return@delete call.respond(HttpStatusCode.BadRequest, "用户ID无效")
                     try {
-                        val userId = call.receive<String>()
                         if (favoriteService.removeFavorite(userId, productId, FavoriteTargetType.PRODUCT)) {
                             call.respond(HttpStatusCode.OK, "已取消收藏")
                         } else {
@@ -242,13 +270,14 @@ fun Application.storeRoutes(
                         call.respond(HttpStatusCode.InternalServerError, "取消收藏失败: ${e.localizedMessage}")
                     }
                 }
-                // 获取商品的评论量，点赞量，收藏量，分享量
+                // 获取商品的评论量、点赞量、收藏量
                 get("/stats") {
                     val productId = call.parameters["productId"] ?: return@get call.respond(HttpStatusCode.BadRequest, "无效的产品ID")
                     try {
                         val stats = mapOf(
                             "likes" to likeService.countLikes(productId, LikeTargetType.PRODUCT),
-                            "comments" to commentService.getCommentsByTargetId(productId, CommentTargetType.PRODUCT).size
+                            "comments" to commentService.getCommentsByTargetId(productId, CommentTargetType.PRODUCT).size,
+                            "favorites" to favoriteService.countFavoritesByTargetId(productId, FavoriteTargetType.PRODUCT)
                         )
                         call.respond(HttpStatusCode.OK, stats)
                     } catch (e: Exception) {

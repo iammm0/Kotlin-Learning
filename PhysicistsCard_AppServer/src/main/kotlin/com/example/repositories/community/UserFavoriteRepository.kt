@@ -1,5 +1,6 @@
 package com.example.repositories.community
 
+import com.example.models.databaseTableModels.community.interaction.PostStats
 import com.example.models.transmissionModels.community.interaction.FavoriteTargetType
 import com.example.models.transmissionModels.community.interaction.UserFavorite
 import com.example.models.databaseTableModels.community.interaction.favorite.UserFavorites
@@ -10,30 +11,57 @@ import java.time.LocalDateTime
 import java.util.*
 
 class UserFavoriteRepository : IUserFavoriteRepository {
-    override fun addFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): UserFavorite = transaction {
-        val favoriteId = UUID.randomUUID().toString()  // 生成唯一标识符
-        UserFavorites.insert {
-            it[this.favoriteId] = favoriteId
-            it[this.userId] = userId
-            it[this.targetId] = targetId
-            it[this.targetType] = targetType
-            it[createdAt] = LocalDateTime.now()  // 设置收藏时间为当前时间
+    override fun addFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): UserFavorite? = transaction {
+        val existingFavorite = findFavorite(userId, targetId, targetType)
+        if (existingFavorite == null) {
+            val favoriteId = UUID.randomUUID().toString()
+            UserFavorites.insert {
+                it[this.favoriteId] = favoriteId
+                it[this.userId] = userId
+                it[this.targetId] = targetId
+                it[this.targetType] = targetType
+                it[createdAt] = LocalDateTime.now()
+            }
+
+            if (targetType == FavoriteTargetType.POST) {
+                PostStats.update({ PostStats.postId eq UUID.fromString(targetId) }) {
+                    with(SqlExpressionBuilder) {
+                        it.update(favoritesCount, favoritesCount + 1)
+                    }
+                }
+            }
+
+            UserFavorite(favoriteId, userId, targetId, targetType, LocalDateTime.now())
+        } else {
+            null
         }
-        UserFavorite(
-            favoriteId,
-            userId,
-            targetId,
-            targetType,
-            LocalDateTime.now()
-        )
     }
 
-    override fun removeFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): Boolean = transaction {
-        UserFavorites.deleteWhere {
+    override fun findFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): UserFavorite? = transaction {
+        UserFavorites.selectAll().where {
             (UserFavorites.userId eq userId) and
                     (UserFavorites.targetId eq targetId) and
                     (UserFavorites.targetType eq targetType)
-        } > 0  // 返回是否成功删除（删除行数 > 0）
+        }.mapNotNull { it.toUserFavorite() }
+            .singleOrNull()
+    }
+
+    override fun removeFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): Boolean = transaction {
+        val deleted = UserFavorites.deleteWhere {
+            (UserFavorites.userId eq userId) and
+                    (UserFavorites.targetId eq targetId) and
+                    (UserFavorites.targetType eq targetType)
+        } > 0
+
+        if (deleted && targetType == FavoriteTargetType.POST) {
+            PostStats.update({ PostStats.postId eq UUID.fromString(targetId) }) {
+                with(SqlExpressionBuilder) {
+                    it.update(favoritesCount, favoritesCount - 1)
+                }
+            }
+        }
+
+        deleted
     }
 
     override fun findFavoritesByUserId(userId: String): List<UserFavorite> = transaction {
@@ -65,9 +93,7 @@ class UserFavoriteRepository : IUserFavoriteRepository {
             favoriteId = this[UserFavorites.favoriteId],
             userId = this[UserFavorites.userId],
             targetId = this[UserFavorites.targetId],
-            targetType = FavoriteTargetType.valueOf(
-                this[UserFavorites.targetType].name
-            ),
+            targetType = FavoriteTargetType.valueOf(this[UserFavorites.targetType].name),
             createdAt = this[UserFavorites.createdAt]
         )
 }

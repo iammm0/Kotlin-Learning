@@ -157,6 +157,22 @@ class UserRepository :  IUserRepository {
         }
     }
 
+    override fun updateUser(user: User): Boolean {
+        return transaction {
+            val updatedRows = Users.update({ Users.userId eq user.userId }) {
+                it[username] = user.username
+                it[email] = user.email
+                it[phone] = user.phone
+                it[avatarUrl] = user.avatarUrl
+                it[bio] = user.bio
+                it[isEmailVerified] = user.isEmailVerified
+                it[isPhoneVerified] = user.isPhoneVerified
+                it[role] = user.role
+            }
+            updatedRows > 0
+        }
+    }
+
     private fun ResultRow.toUser() = User(
         userId = this[Users.userId],
         username = this[Users.username],

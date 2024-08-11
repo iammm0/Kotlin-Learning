@@ -13,7 +13,7 @@ interface  IUserLikeService {
      * @param targetType 目标对象类型
      * @return 新增的点赞对象
      */
-    fun addLike(userId: String, targetId: String, targetType: LikeTargetType): UserLike
+    fun addLike(userId: String, targetId: String, targetType: LikeTargetType): UserLike?
 
     /**
      * 移除点赞

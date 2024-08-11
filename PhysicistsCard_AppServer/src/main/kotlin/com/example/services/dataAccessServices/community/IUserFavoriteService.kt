@@ -13,7 +13,7 @@ interface IUserFavoriteService {
      * @param targetType 目标对象类型
      * @return 新增的收藏对象
      */
-    fun addFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): UserFavorite
+    fun addFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): UserFavorite?
 
     /**
      * 移除收藏

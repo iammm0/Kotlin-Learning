@@ -13,7 +13,7 @@ interface IUserFavoriteRepository {
      * @param targetType 目标类型（帖子或商品）
      * @return 收藏对象
      */
-    fun addFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): UserFavorite
+    fun addFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): UserFavorite?
 
     /**
      * 用户取消收藏
@@ -41,4 +41,14 @@ interface IUserFavoriteRepository {
      * @return 收藏记录列表
      */
     fun findFavoritesByTargetId(targetId: String, targetType: FavoriteTargetType): List<UserFavorite>
+
+    /**
+     * 查找用户是否已对特定目标收藏
+     *
+     * @param userId 用户ID
+     * @param targetId 目标ID
+     * @param targetType 目标类型（帖子或商品）
+     * @return 收藏对象或null
+     */
+    fun findFavorite(userId: String, targetId: String, targetType: FavoriteTargetType): UserFavorite? // 新增的方法
 }

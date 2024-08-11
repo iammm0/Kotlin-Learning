@@ -13,7 +13,7 @@ interface IUserLikeRepository {
      * @param targetType 目标类型（帖子或商品）
      * @return 点赞对象
      */
-    fun addLike(userId: String, targetId: String, targetType: LikeTargetType): UserLike
+    fun addLike(userId: String, targetId: String, targetType: LikeTargetType): UserLike?
 
     /**
      * 用户取消点赞
@@ -41,4 +41,14 @@ interface IUserLikeRepository {
      * @return 点赞总数
      */
     fun countLikes(targetId: String, targetType: LikeTargetType): Int
+
+    /**
+     * 查找用户是否已对特定目标点赞
+     *
+     * @param userId 用户ID
+     * @param targetId 目标ID
+     * @param targetType 目标类型（帖子或商品）
+     * @return 点赞对象或null
+     */
+    fun findLike(userId: String, targetId: String, targetType: LikeTargetType): UserLike? // 新增的方法
 }

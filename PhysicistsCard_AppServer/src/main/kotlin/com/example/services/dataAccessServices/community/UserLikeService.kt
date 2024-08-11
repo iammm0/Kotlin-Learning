@@ -5,8 +5,13 @@ import com.example.models.transmissionModels.community.interaction.UserLike
 import com.example.repositories.community.IUserLikeRepository
 
 class UserLikeService(private val userLikeRepository: IUserLikeRepository) : IUserLikeService {
-    override fun addLike(userId: String, targetId: String, targetType: LikeTargetType): UserLike {
-        return userLikeRepository.addLike(userId, targetId, targetType)
+    override fun addLike(userId: String, targetId: String, targetType: LikeTargetType): UserLike? {
+        val existingLike = userLikeRepository.findLike(userId, targetId, targetType)
+        return if (existingLike == null) {
+            userLikeRepository.addLike(userId, targetId, targetType)
+        } else {
+            null  // 返回null表示已存在点赞记录
+        }
     }
 
     override fun removeLike(userId: String, targetId: String, targetType: LikeTargetType): Boolean {

@@ -1,9 +1,9 @@
 package com.example.services.dataAccessServices.auth
 
+import com.example.models.transmissionModels.auth.merchant.MerchantApplication
 import com.example.models.transmissionModels.auth.requests.*
 import com.example.models.transmissionModels.auth.responses.*
-import com.example.models.transmissionModels.auth.user.User
-import com.example.models.transmissionModels.auth.verificationCodes.VerificationType
+import com.example.models.transmissionModels.auth.user.Role
 
 interface IAuthService {
     /**
@@ -61,11 +61,15 @@ interface IAuthService {
     fun becomeSeller(userId: String): Boolean
 
     /**
-     * 用户登出
-     * @param userId 用户ID
-     * @return 登出是否成功
+     * 执行用户登出操作。
+     * 登出操作会使用户的所有刷新令牌失效，用户将无法再使用这些令牌来获取新的访问令牌。
+     *
+     * @param userId 用户的唯一标识符。
+     * @return 如果成功登出则返回 true，登出失败则返回 false。
+     * @throws IllegalArgumentException 如果提供的用户ID无效或用户不存在时抛出。
      */
     fun logout(userId: String): Boolean
+
 
     /**
      * 切换用户头像
@@ -76,27 +80,40 @@ interface IAuthService {
     fun changeAvatar(userId: String, avatarUrl: String): Boolean
 
     /**
-     * 绑定用户手机
-     * @param userId 用户ID
-     * @param phone 新的手机号码
-     * @return 绑定手机是否成功
+     * 绑定用户手机号码。
+     * 当用户尝试绑定新的手机号码时，如果用户已经绑定了旧的手机号码，则需要提供旧手机号码的验证码进行验证。
+     *
+     * @param userId 用户的唯一标识符。
+     * @param newPhone 用户想要绑定的新手机号码。
+     * @param oldPhoneVerificationCode 如果用户已经绑定了旧手机号码，则需要提供旧手机号码的验证码进行验证。否则为 null。
+     * @return 如果成功绑定新手机号码则返回 true，绑定失败则返回 false。
+     * @throws IllegalArgumentException 当新手机号码已被其他用户绑定，或者提供的旧手机号码验证码无效时抛出。
      */
-    fun bindPhone(userId: String, phone: String): Boolean
+    fun bindPhone(userId: String, newPhone: String, oldPhoneVerificationCode: String?): Boolean
 
     /**
-     * 绑定用户邮箱
-     * @param userId 用户ID
-     * @param email 新的邮箱地址
-     * @return 绑定邮箱是否成功
+     * 绑定用户邮箱地址。
+     * 当用户尝试绑定新的邮箱地址时，如果用户已经绑定了旧的邮箱地址，则需要提供旧邮箱地址的验证码进行验证。
+     *
+     * @param userId 用户的唯一标识符。
+     * @param newEmail 用户想要绑定的新邮箱地址。
+     * @param oldEmailVerificationCode 如果用户已经绑定了旧邮箱地址，则需要提供旧邮箱地址的验证码进行验证。否则为 null。
+     * @return 如果成功绑定新邮箱地址则返回 true，绑定失败则返回 false。
+     * @throws IllegalArgumentException 当新邮箱地址已被其他用户绑定，或者提供的旧邮箱验证码无效时抛出。
      */
-    fun bindEmail(userId: String, email: String): Boolean
+    fun bindEmail(userId: String, newEmail: String, oldEmailVerificationCode: String?): Boolean
+
 
     /**
-     * 添加新的账户
-     * @param request 包含新账户信息的请求对象
-     * @return 添加账户是否成功
+     * 添加新用户账户。
+     * 该方法仅允许具有超级管理员角色的用户执行，用于在系统中添加新用户。
+     *
+     * @param request 包含新账户信息的请求对象，包含用户名、邮箱、手机号、密码和角色。
+     * @param currentUserRole 当前执行此操作用户的角色。仅当角色为 SUPER_ADMIN 时，允许添加新账户。
+     * @return 添加账户是否成功。如果成功添加账户返回 true，失败返回 false。
+     * @throws IllegalArgumentException 如果当前用户没有权限添加账户，或者新账户的邮箱或手机号已被使用。
      */
-    fun addAccount(request: AddAccountRequest): Boolean
+    fun addAccount(request: AddAccountRequest, currentUserRole: Role): Boolean
 
     /**
      * 使用刷新令牌获取新的访问令牌
@@ -104,4 +121,31 @@ interface IAuthService {
      * @return 登录响应对象，包含新的访问令牌和刷新令牌
      */
     fun refreshToken(refreshToken: String): LoginResponse
+
+    /**
+     * 用户提交商家入驻申请。
+     *
+     * @param userId 用户的唯一标识符。
+     * @param application 商家申请对象，包含用户提交的商家信息。
+     * @return 如果申请提交成功则返回 true，提交失败则返回 false。
+     */
+    fun applyForMerchant(userId: String, application: MerchantApplication): Boolean
+
+    /**
+     * 审核并批准商家申请。
+     *
+     * @param userId 用户的唯一标识符。
+     * @return 如果申请审核通过并更新用户角色为商家则返回 true，失败则返回 false。
+     */
+    fun approveMerchantApplication(userId: String): Boolean
+
+    /**
+     * 更新用户的个人信息。
+     *
+     * @param userId 用户的唯一标识符。
+     * @param updateRequest 包含要更新的用户信息。
+     * @return 如果更新成功则返回 true，更新失败则返回 false。
+     * @throws IllegalArgumentException 如果更新的参数无效或冲突。
+     */
+    fun updateUserInfo(userId: String, updateRequest: UserInfoUpdateRequest): Boolean
 }

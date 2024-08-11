@@ -1,5 +1,7 @@
 package com.example.routes.auth
 
+import com.example.models.transmissionModels.auth.merchant.MerchantApplication
+import com.example.models.transmissionModels.auth.merchant.MerchantApplicationRequest
 import com.example.models.transmissionModels.auth.requests.*
 import com.example.models.transmissionModels.auth.responses.LoginResponse
 import com.example.models.transmissionModels.auth.responses.ResetPasswordResponse
@@ -14,6 +16,8 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.time.LocalDateTime
+import java.util.*
 
 fun Application.authRoutes(
     authService: IAuthService
@@ -39,7 +43,10 @@ fun Application.authRoutes(
                     val regisResponse = authService.registerUser(regisRequest)
                     call.respond(HttpStatusCode.Created, regisResponse)
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "注册失败: ${e.localizedMessage}"))
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        mapOf("error" to "注册失败: ${e.localizedMessage}")
+                    )
                 }
             }
 
@@ -52,10 +59,26 @@ fun Application.authRoutes(
                         val response = authService.loginWithVerificationCode(loginRequest.email, loginRequest.emailCode)
                         call.respond(response)
                     } else {
-                        call.respond(HttpStatusCode.BadRequest, LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "验证码无效或已过期"))
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            LoginResponse(
+                                success = false,
+                                token = null,
+                                refreshToken = null,
+                                errorMessage = "验证码无效或已过期"
+                            )
+                        )
                     }
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "登录失败: ${e.localizedMessage}"))
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        LoginResponse(
+                            success = false,
+                            token = null,
+                            refreshToken = null,
+                            errorMessage = "登录失败: ${e.localizedMessage}"
+                        )
+                    )
                 }
             }
 
@@ -69,10 +92,26 @@ fun Application.authRoutes(
                         val response = authService.loginWithVerificationCode(loginRequest.phone, loginRequest.phoneCode)
                         call.respond(response)
                     } else {
-                        call.respond(HttpStatusCode.BadRequest, LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "验证码无效或已过期"))
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            LoginResponse(
+                                success = false,
+                                token = null,
+                                refreshToken = null,
+                                errorMessage = "验证码无效或已过期"
+                            )
+                        )
                     }
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "登录失败: ${e.localizedMessage}"))
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        LoginResponse(
+                            success = false,
+                            token = null,
+                            refreshToken = null,
+                            errorMessage = "登录失败: ${e.localizedMessage}"
+                        )
+                    )
                 }
             }
 
@@ -85,7 +124,14 @@ fun Application.authRoutes(
                     val response = authService.sendVerificationCode(identifier, codeRequest)
                     call.respond(HttpStatusCode.OK, response)
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, SendCodeResponse(success = false, message = "发送失败: ${e.localizedMessage}", errorCode = "INTERNAL_SERVER_ERROR"))
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        SendCodeResponse(
+                            success = false,
+                            message = "发送失败: ${e.localizedMessage}",
+                            errorCode = "INTERNAL_SERVER_ERROR"
+                        )
+                    )
                 }
             }
 
@@ -97,10 +143,17 @@ fun Application.authRoutes(
                     val response = authService.loginWithPassword(loginRequest.identifier, loginRequest.password)
                     call.respond(response)
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "登录失败: ${e.localizedMessage}"))
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        LoginResponse(
+                            success = false,
+                            token = null,
+                            refreshToken = null,
+                            errorMessage = "登录失败: ${e.localizedMessage}"
+                        )
+                    )
                 }
             }
-
 
 
             // 重置密码功能，通常涉及发送重置链接到用户邮箱
@@ -110,109 +163,218 @@ fun Application.authRoutes(
 
                     if (authService.verifyCode(request.identifier, request.code)) {
                         if (authService.resetPassword(request.identifier, request.newPassword)) {
-                            call.respond(HttpStatusCode.OK, ResetPasswordResponse(success = true, message = "重置密码成功"))
+                            call.respond(
+                                HttpStatusCode.OK,
+                                ResetPasswordResponse(success = true, message = "重置密码成功")
+                            )
                         } else {
-                            call.respond(HttpStatusCode.InternalServerError, ResetPasswordResponse(success = false, message = "重置密码失败"))
+                            call.respond(
+                                HttpStatusCode.InternalServerError,
+                                ResetPasswordResponse(success = false, message = "重置密码失败")
+                            )
                         }
                     } else {
-                        call.respond(HttpStatusCode.BadRequest, ResetPasswordResponse(success = false, message = "验证码无效或已过期"))
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            ResetPasswordResponse(success = false, message = "验证码无效或已过期")
+                        )
                     }
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, ResetPasswordResponse(success = false, message = "重置密码失败: ${e.localizedMessage}", errorCode = "INTERNAL_SERVER_ERROR"))
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        ResetPasswordResponse(
+                            success = false,
+                            message = "重置密码失败: ${e.localizedMessage}",
+                            errorCode = "INTERNAL_SERVER_ERROR"
+                        )
+                    )
                 }
             }
 
+            post("/refresh-token") {
+                try {
+                    val refreshTokenRequest = call.receive<RefreshTokenRequest>() // 从请求中获取刷新令牌
+                    val response = authService.refreshToken(refreshTokenRequest.refreshToken)
+                    if (response.success) {
+                        call.respond(HttpStatusCode.OK, response)
+                    } else {
+                        call.respond(HttpStatusCode.Unauthorized, response)
+                    }
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.InternalServerError, "刷新令牌失败: ${e.localizedMessage}")
+                }
+            }
+
+
+
             authenticate {
-                // 注册为商家
-                post("/become_seller") {
+
+                post("/apply-for-merchant") {
                     val principal = call.principal<JWTPrincipal>()
-                    if (principal == null || !principal.hasRole(Role.USER)) {
+                    if (principal == null) {
+                        call.respond(HttpStatusCode.Unauthorized, "未认证的请求")
+                        return@post
+                    }
+
+                    val userId = principal.payload.getClaim("userId").asString()
+                    val request = call.receive<MerchantApplicationRequest>()
+
+                    val application = MerchantApplication(
+                        applicationId = UUID.randomUUID().toString(),
+                        userId = userId,
+                        companyName = request.companyName,
+                        contactNumber = request.contactNumber,
+                        address = request.address,
+                        licenseUrl = request.licenseUrl,
+                        applicationStatus = ApplicationStatus.PENDING,
+                        createdAt = LocalDateTime.now()
+                    )
+
+                    try {
+                        val result = authService.applyForMerchant(userId, application)
+                        if (result) {
+                            call.respond(HttpStatusCode.OK, "商家申请提交成功，等待审核")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "商家申请提交失败")
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        call.respond(HttpStatusCode.BadRequest, e.message ?: "请求无效")
+                    }
+                }
+
+
+                post("/approve-merchant") {
+                    val principal = call.principal<JWTPrincipal>()
+                    if (principal == null || !principal.hasRole(Role.SUPER_ADMIN)) {
                         call.respond(HttpStatusCode.Forbidden, "你没有访问权限")
                         return@post
                     }
-                    val userId = principal.payload.getClaim("userId").asString()
-                    if (authService.becomeSeller(userId)) {
-                        call.respond(HttpStatusCode.OK, "注册为商家成功")
-                    } else {
-                        call.respond(HttpStatusCode.InternalServerError, "注册为商家失败")
+
+                    val userId = call.receive<String>()
+
+                    try {
+                        val result = authService.approveMerchantApplication(userId)
+                        if (result) {
+                            call.respond(HttpStatusCode.OK, "商家申请审核通过")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "商家申请审核失败")
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        call.respond(HttpStatusCode.BadRequest, e.message ?: "请求无效")
                     }
                 }
+
 
                 // 用户登出
                 post("/logout") {
                     val principal = call.principal<JWTPrincipal>()
                     if (principal == null) {
-                        call.respond(HttpStatusCode.Unauthorized)
+                        call.respond(HttpStatusCode.Unauthorized, "未认证的请求")
                         return@post
                     }
+
                     val userId = principal.payload.getClaim("userId").asString()
-                    if (authService.logout(userId)) {
-                        call.respond(HttpStatusCode.OK, "登出成功")
-                    } else {
-                        call.respond(HttpStatusCode.InternalServerError, "登出失败")
+
+                    try {
+                        val result = authService.logout(userId)
+                        if (result) {
+                            call.respond(HttpStatusCode.OK, "成功登出")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "登出失败")
+                        }
+                    } catch (e: Exception) {
+                        call.respond(HttpStatusCode.InternalServerError, "服务器错误: ${e.localizedMessage}")
                     }
                 }
 
-                // 切换头像
-                post("/change-avatar") {
+                post("/update-user-info") {
                     val principal = call.principal<JWTPrincipal>()
                     if (principal == null) {
-                        call.respond(HttpStatusCode.Unauthorized)
+                        call.respond(HttpStatusCode.Unauthorized, "未认证的请求")
                         return@post
                     }
+
                     val userId = principal.payload.getClaim("userId").asString()
-                    val avatarUrl = call.receive<String>()
-                    if (authService.changeAvatar(userId, avatarUrl)) {
-                        call.respond(HttpStatusCode.OK, "头像切换成功")
-                    } else {
-                        call.respond(HttpStatusCode.InternalServerError, "头像切换失败")
+                    val updateRequest = call.receive<UserInfoUpdateRequest>()
+
+                    try {
+                        val result = authService.updateUserInfo(userId, updateRequest)
+                        if (result) {
+                            call.respond(HttpStatusCode.OK, "用户信息更新成功")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "用户信息更新失败")
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        call.respond(HttpStatusCode.BadRequest, e.message ?: "请求无效")
                     }
                 }
 
-                // 绑定手机
+
                 post("/binding-phone") {
                     val principal = call.principal<JWTPrincipal>()
                     if (principal == null) {
                         call.respond(HttpStatusCode.Unauthorized)
                         return@post
                     }
+
                     val userId = principal.payload.getClaim("userId").asString()
-                    val phone = call.receive<String>()
-                    if (authService.bindPhone(userId, phone)) {
-                        call.respond(HttpStatusCode.OK, "绑定手机成功")
-                    } else {
-                        call.respond(HttpStatusCode.InternalServerError, "绑定手机失败")
+                    val bindPhoneRequest = call.receive<BindPhoneRequest>()
+
+                    try {
+                        val result = authService.bindPhone(userId, bindPhoneRequest.newPhone, bindPhoneRequest.oldPhoneVerificationCode)
+                        if (result) {
+                            call.respond(HttpStatusCode.OK, "绑定手机号成功")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "绑定手机号失败")
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        call.respond(HttpStatusCode.BadRequest, e.message ?: "请求无效")
                     }
                 }
 
-                // 绑定邮箱
+
                 post("/binding-email") {
                     val principal = call.principal<JWTPrincipal>()
                     if (principal == null) {
                         call.respond(HttpStatusCode.Unauthorized)
                         return@post
                     }
+
                     val userId = principal.payload.getClaim("userId").asString()
-                    val email = call.receive<String>()
-                    if (authService.bindEmail(userId, email)) {
-                        call.respond(HttpStatusCode.OK, "绑定邮箱成功")
-                    } else {
-                        call.respond(HttpStatusCode.InternalServerError, "绑定邮箱失败")
+                    val bindEmailRequest = call.receive<BindEmailRequest>()
+
+                    try {
+                        val result = authService.bindEmail(userId, bindEmailRequest.newEmail, bindEmailRequest.oldEmailVerificationCode)
+                        if (result) {
+                            call.respond(HttpStatusCode.OK, "绑定邮箱成功")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "绑定邮箱失败")
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        call.respond(HttpStatusCode.BadRequest, e.message ?: "请求无效")
                     }
                 }
 
-                // 添加账户
+
                 post("/add-account") {
                     val principal = call.principal<JWTPrincipal>()
                     if (principal == null || !principal.hasRole(Role.SUPER_ADMIN)) {
-                        call.respond(HttpStatusCode.Forbidden, "你没有访问权限")
+                        call.respond(HttpStatusCode.Forbidden, "权限不足")
                         return@post
                     }
+
                     val addAccountRequest = call.receive<AddAccountRequest>()
-                    if (authService.addAccount(addAccountRequest)) {
-                        call.respond(HttpStatusCode.OK, "添加账户成功")
-                    } else {
-                        call.respond(HttpStatusCode.InternalServerError, "添加账户失败")
+                    val currentUserRole = Role.valueOf(principal.payload.getClaim("role").asString())
+
+                    try {
+                        val result = authService.addAccount(addAccountRequest, currentUserRole)
+                        if (result) {
+                            call.respond(HttpStatusCode.OK, "添加账户成功")
+                        } else {
+                            call.respond(HttpStatusCode.InternalServerError, "添加账户失败")
+                        }
+                    } catch (e: IllegalArgumentException) {
+                        call.respond(HttpStatusCode.BadRequest, e.message ?: "请求无效")
                     }
                 }
             }

@@ -93,4 +93,12 @@ interface IUserRepository {
      * @return 用户对象，若未找到则返回 null
      */
     fun findUserById(userId: String): User?
+
+    /**
+     * 更新用户信息。
+     *
+     * @param user 更新后的用户对象，包含需要更新的字段。
+     * @return 更新是否成功。
+     */
+    fun updateUser(user: User): Boolean
 }

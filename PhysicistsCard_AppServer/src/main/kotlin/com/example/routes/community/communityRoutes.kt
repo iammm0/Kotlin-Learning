@@ -1,11 +1,9 @@
 package com.example.routes.community
 
 import com.example.models.transmissionModels.auth.user.Role
-import com.example.models.transmissionModels.community.interaction.CommentTargetType
-import com.example.models.transmissionModels.community.interaction.FavoriteTargetType
-import com.example.models.transmissionModels.community.interaction.LikeTargetType
-import com.example.models.transmissionModels.community.interaction.UserComment
+import com.example.models.transmissionModels.community.interaction.*
 import com.example.models.transmissionModels.community.post.Post
+import com.example.models.transmissionModels.community.post.UpdatePostRequest
 import com.example.services.dataAccessServices.community.*
 import com.example.utils.hasAnyRole
 import com.example.utils.hasRole
@@ -16,6 +14,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.time.LocalDateTime
 import java.util.*
 
 
@@ -23,7 +22,8 @@ fun Application.communityRoutes(
     postService: IPostService,
     commentService: IUserCommentService,
     likeService: IUserLikeService,
-    favoriteService: IUserFavoriteService
+    favoriteService: IUserFavoriteService,
+    postStatService: IPostStatService
 ) {
     routing {
         // 推送相关
@@ -67,18 +67,29 @@ fun Application.communityRoutes(
                         call.respond(HttpStatusCode.InternalServerError, "创建推送时发生错误: ${e.localizedMessage}")
                     }
                 }
+
                 // 更新特定推送的内容
                 put("/{postId}") {
                     val principal = call.principal<JWTPrincipal>()
-                    if (principal == null || !principal.hasRole(Role.MERCHANT)) {
+                    if (principal == null || !principal.hasRole(Role.USER)) {
                         call.respond(HttpStatusCode.Forbidden, "你没有访问权限")
                         return@put
                     }
                     val postId = call.parameters["postId"]?.let { UUID.fromString(it) }
                         ?: return@put call.respond(HttpStatusCode.BadRequest, "无效的推送ID")
+
                     try {
-                        val post = call.receive<Post>()
-                        val updated = postService.updatePost(postId, post.title, post.contents, post.category)
+                        // 接收 UpdatePostRequest 对象
+                        val updateRequest = call.receive<UpdatePostRequest>()
+
+                        // 调用服务层进行更新操作
+                        val updated = postService.updatePost(
+                            postId,
+                            updateRequest.title,
+                            updateRequest.contents,
+                            updateRequest.category
+                        )
+
                         if (updated) {
                             call.respond(HttpStatusCode.OK, "推送已更新")
                         } else {
@@ -124,12 +135,31 @@ fun Application.communityRoutes(
                         call.respond(HttpStatusCode.Forbidden, "你没有访问权限")
                         return@post
                     }
+
+                    // 从路径参数中提取 postId
                     val postId = call.parameters["postId"]?.let { UUID.fromString(it) }
                         ?: return@post call.respond(HttpStatusCode.BadRequest, "无效的推送ID")
 
+                    // 从 JWT 中提取 userId
+                    val userId = principal.payload.getClaim("userId").asString()
+
                     try {
-                        val comment = call.receive<UserComment>()
-                        val added = commentService.addComment(postId.toString(), comment)
+                        // 接收评论请求
+                        val request = call.receive<UserCommentRequest>()
+
+                        val commentRequest = UserComment(
+                            commentId = UUID.randomUUID().toString(),
+                            userId = userId,
+                            targetId = postId.toString(),
+                            targetType = CommentTargetType.POST,
+                            content = request.content,
+                            createdAt = LocalDateTime.now(),
+                            parentId = request.parentId
+                        )
+
+                        // 调用 service 层将评论保存到数据库中
+                        val added = commentService.addComment(postId.toString(), commentRequest)
+
                         if (added) {
                             call.respond(HttpStatusCode.Created, "评论已添加")
                         } else {
@@ -187,13 +217,21 @@ fun Application.communityRoutes(
                         call.respond(HttpStatusCode.Forbidden, "你没有访问权限")
                         return@post
                     }
+
                     val postId = call.parameters["postId"]?.let { UUID.fromString(it) }
                         ?: return@post call.respond(HttpStatusCode.BadRequest, "无效的推送ID")
 
                     try {
-                        val userId = call.receive<String>()
-                        val userLike = likeService.addLike(userId, postId.toString(), LikeTargetType.POST)
-                        call.respond(HttpStatusCode.Created, userLike)
+                        val userId = principal.payload.getClaim("userId").asString()
+                        val addedLike = likeService.addLike(userId, postId.toString(), LikeTargetType.POST)
+                        if (addedLike != null) {
+                            // 更新统计信息
+                            postStatService.incrementLikes(postId)
+                            val updatedStats = postStatService.getPostStats(postId)
+                            call.respond(HttpStatusCode.Created, updatedStats ?: "点赞成功，但无法获取更新后的统计信息")
+                        } else {
+                            call.respond(HttpStatusCode.Conflict, "用户已经点赞")
+                        }
                     } catch (e: Exception) {
                         call.respond(HttpStatusCode.InternalServerError, "点赞时发生错误: ${e.localizedMessage}")
                     }
@@ -206,13 +244,18 @@ fun Application.communityRoutes(
                         call.respond(HttpStatusCode.Forbidden, "你没有访问权限")
                         return@delete
                     }
+
                     val postId = call.parameters["postId"]?.let { UUID.fromString(it) }
                         ?: return@delete call.respond(HttpStatusCode.BadRequest, "无效的推送ID")
 
                     try {
-                        val userId = call.receive<String>()
-                        if (likeService.removeLike(userId, postId.toString(), LikeTargetType.POST)) {
-                            call.respond(HttpStatusCode.OK, "点赞已取消")
+                        val userId = principal.payload.getClaim("userId").asString()
+                        val removed = likeService.removeLike(userId, postId.toString(), LikeTargetType.POST)
+                        if (removed) {
+                            // 更新统计信息
+                            postStatService.decrementLikes(postId)
+                            val updatedStats = postStatService.getPostStats(postId)
+                            call.respond(HttpStatusCode.OK, updatedStats ?: "取消点赞成功，但无法获取更新后的统计信息")
                         } else {
                             call.respond(HttpStatusCode.NotFound, "未找到点赞记录")
                         }
@@ -221,6 +264,7 @@ fun Application.communityRoutes(
                     }
                 }
 
+
                 // 收藏特定推送
                 post("/favorite") {
                     val principal = call.principal<JWTPrincipal>()
@@ -228,17 +272,26 @@ fun Application.communityRoutes(
                         call.respond(HttpStatusCode.Forbidden, "你没有访问权限")
                         return@post
                     }
+
                     val postId = call.parameters["postId"]?.let { UUID.fromString(it) }
                         ?: return@post call.respond(HttpStatusCode.BadRequest, "无效的推送ID")
 
                     try {
-                        val userId = call.receive<String>()
-                        val userFavorite = favoriteService.addFavorite(userId, postId.toString(), FavoriteTargetType.POST)
-                        call.respond(HttpStatusCode.Created, userFavorite)
+                        val userId = principal.payload.getClaim("userId").asString()
+                        val addedFavorite = favoriteService.addFavorite(userId, postId.toString(), FavoriteTargetType.POST)
+                        if (addedFavorite != null) {
+                            // 更新统计信息
+                            postStatService.incrementFavorites(postId)
+                            val updatedStats = postStatService.getPostStats(postId)
+                            call.respond(HttpStatusCode.Created, updatedStats ?: "收藏成功，但无法获取更新后的统计信息")
+                        } else {
+                            call.respond(HttpStatusCode.Conflict, "用户已经收藏")
+                        }
                     } catch (e: Exception) {
                         call.respond(HttpStatusCode.InternalServerError, "收藏时发生错误: ${e.localizedMessage}")
                     }
                 }
+
 
                 // 删除对特定推送的收藏
                 delete("/favorite") {
@@ -247,13 +300,18 @@ fun Application.communityRoutes(
                         call.respond(HttpStatusCode.Forbidden, "你没有访问权限")
                         return@delete
                     }
+
                     val postId = call.parameters["postId"]?.let { UUID.fromString(it) }
                         ?: return@delete call.respond(HttpStatusCode.BadRequest, "无效的推送ID")
 
                     try {
-                        val userId = call.receive<String>()
-                        if (favoriteService.removeFavorite(userId, postId.toString(), FavoriteTargetType.POST)) {
-                            call.respond(HttpStatusCode.OK, "收藏已取消")
+                        val userId = principal.payload.getClaim("userId").asString()
+                        val removed = favoriteService.removeFavorite(userId, postId.toString(), FavoriteTargetType.POST)
+                        if (removed) {
+                            // 更新统计信息
+                            postStatService.decrementFavorites(postId)
+                            val updatedStats = postStatService.getPostStats(postId)
+                            call.respond(HttpStatusCode.OK, updatedStats ?: "取消收藏成功，但无法获取更新后的统计信息")
                         } else {
                             call.respond(HttpStatusCode.NotFound, "未找到收藏记录")
                         }
@@ -262,23 +320,26 @@ fun Application.communityRoutes(
                     }
                 }
 
-                // 获取特定推送的点赞量，评论量，收藏量
+
+
+                // 获取特定推送的统计信息
                 get("/stats") {
                     val principal = call.principal<JWTPrincipal>()
                     if (principal == null || !principal.hasRole(Role.USER)) {
                         call.respond(HttpStatusCode.Forbidden, "你没有访问权限")
                         return@get
                     }
+
                     val postId = call.parameters["postId"]?.let { UUID.fromString(it) }
                         ?: return@get call.respond(HttpStatusCode.BadRequest, "无效的推送ID")
 
                     try {
-                        val stats = mapOf(
-                            "likes" to likeService.countLikes(postId.toString(), LikeTargetType.POST),
-                            "comments" to commentService.getCommentsByTargetId(postId.toString(), CommentTargetType.POST).size,
-                            "favorites" to favoriteService.getFavoritesByUserId(postId.toString()).size
-                        )
-                        call.respond(HttpStatusCode.OK, stats)
+                        val stats = postStatService.getPostStats(postId)
+                        if (stats != null) {
+                            call.respond(HttpStatusCode.OK, stats)
+                        } else {
+                            call.respond(HttpStatusCode.NotFound, "未找到统计信息")
+                        }
                     } catch (e: Exception) {
                         call.respond(HttpStatusCode.InternalServerError, "获取推送统计信息时发生错误: ${e.localizedMessage}")
                     }

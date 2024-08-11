@@ -4,7 +4,7 @@ import com.example.models.transmissionModels.community.interaction.CommentTarget
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 
-object UserComments : Table("UserComments") {
+object UserComments : Table("usercomments") {
     val commentId = varchar("commentId", 50)
     val userId = varchar("userId", 50)
     val targetId = varchar("targetId", 50)

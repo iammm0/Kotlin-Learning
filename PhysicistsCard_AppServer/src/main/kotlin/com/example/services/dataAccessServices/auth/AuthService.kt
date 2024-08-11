@@ -2,11 +2,10 @@ package com.example.services.dataAccessServices.auth
 
 import IUserRepository
 import at.favre.lib.crypto.bcrypt.BCrypt
-import com.example.models.transmissionModels.auth.requests.AddAccountRequest
+import com.example.models.transmissionModels.auth.merchant.MerchantApplication
+import com.example.models.transmissionModels.auth.requests.*
 import com.example.models.transmissionModels.auth.user.User
 import com.example.models.transmissionModels.auth.verificationCodes.VerificationType
-import com.example.models.transmissionModels.auth.requests.RegistrationRequest
-import com.example.models.transmissionModels.auth.requests.SendCodeRequest
 import com.example.models.transmissionModels.auth.responses.LoginResponse
 import com.example.models.transmissionModels.auth.responses.RegistrationResponse
 import com.example.models.transmissionModels.auth.responses.SendCodeResponse
@@ -22,7 +21,8 @@ class AuthService(
     private val tokenService: ITokenService, // 注入TokenService
     private val userRepository: IUserRepository,
     private val verificationCodeRepository: IVerificationCodeRepository,
-    private val refreshTokenRepository: IRefreshTokenRepository
+    private val refreshTokenRepository: IRefreshTokenRepository,
+    private val merchantApplicationRepository: IMerchantApplicationRepository
 ) : IAuthService {
 
     override fun registerUser(registrationRequest: RegistrationRequest): RegistrationResponse {
@@ -187,7 +187,18 @@ class AuthService(
     }
 
     override fun logout(userId: String): Boolean {
-        TODO("Not yet implemented")
+        return try {
+            // 删除用户的所有刷新令牌
+            val tokensDeleted = refreshTokenRepository.deleteRefreshTokensByUserId(userId)
+
+            // 如果你有其他需要在登出时清理的数据或状态，可以在这里进行
+            // 例如，清理缓存的用户信息，或记录登出时间等。
+
+            tokensDeleted
+        } catch (e: Exception) {
+            println("登出操作失败: ${e.localizedMessage}")
+            false
+        }
     }
 
 
@@ -195,15 +206,57 @@ class AuthService(
         return userRepository.updateUserAvatar(userId, avatarUrl)
     }
 
-    override fun bindPhone(userId: String, phone: String): Boolean {
-        return userRepository.updateUserPhone(userId, phone)
+    override fun bindPhone(userId: String, newPhone: String, oldPhoneVerificationCode: String?): Boolean {
+        val user = userRepository.findUserById(userId)
+            ?: throw IllegalArgumentException("用户不存在")
+
+        // 检查新手机号是否已被使用
+        if (userRepository.checkDuplicateEmailOrPhone(null, newPhone)) {
+            throw IllegalArgumentException("该手机号已被使用")
+        }
+
+        // 验证旧手机号的验证码（如果有旧手机号）
+        user.phone?.let { oldPhone ->
+            if (oldPhoneVerificationCode == null || !verificationCodeRepository.verifyCode(oldPhone, oldPhoneVerificationCode)) {
+                throw IllegalArgumentException("旧手机号验证码错误或已过期")
+            }
+        }
+
+        // 更新手机号
+        return userRepository.updateUserPhone(userId, newPhone)
     }
 
-    override fun bindEmail(userId: String, email: String): Boolean {
-        return userRepository.updateUserEmail(userId, email)
+    override fun bindEmail(userId: String, newEmail: String, oldEmailVerificationCode: String?): Boolean {
+        val user = userRepository.findUserById(userId)
+            ?: throw IllegalArgumentException("用户不存在")
+
+        // 检查新邮箱是否已被使用
+        if (userRepository.checkDuplicateEmailOrPhone(newEmail, null)) {
+            throw IllegalArgumentException("该邮箱已被使用")
+        }
+
+        // 验证旧邮箱的验证码（如果有旧邮箱）
+        user.email?.let { oldEmail ->
+            if (oldEmailVerificationCode == null || !verificationCodeRepository.verifyCode(oldEmail, oldEmailVerificationCode)) {
+                throw IllegalArgumentException("旧邮箱验证码错误或已过期")
+            }
+        }
+
+        // 更新邮箱
+        return userRepository.updateUserEmail(userId, newEmail)
     }
 
-    override fun addAccount(request: AddAccountRequest): Boolean {
+    override fun addAccount(request: AddAccountRequest, currentUserRole: Role): Boolean {
+        // 仅允许超级管理员添加用户
+        if (currentUserRole != Role.SUPER_ADMIN) {
+            throw IllegalArgumentException("权限不足，无法添加用户")
+        }
+
+        // 检查邮箱或手机号是否已被使用
+        if (userRepository.checkDuplicateEmailOrPhone(request.email, request.phone)) {
+            throw IllegalArgumentException("邮箱或手机号已被使用")
+        }
+
         val newUser = User(
             userId = generateUUID(),
             username = request.username,
@@ -217,7 +270,61 @@ class AuthService(
             isPhoneVerified = false,
             role = request.role
         )
+
         return userRepository.createUserAndReturnUser(newUser)
+    }
+
+    override fun applyForMerchant(userId: String, application: MerchantApplication): Boolean {
+        // 检查用户是否已经提交过申请
+        val existingApplication = merchantApplicationRepository.findApplicationByUserId(userId)
+        if (existingApplication != null) {
+            throw IllegalArgumentException("您已经提交过商家申请，正在审核中")
+        }
+
+        // 保存商家申请信息
+        val applicationWithId = application.copy(applicationId = UUID.randomUUID().toString())
+        return merchantApplicationRepository.saveApplication(applicationWithId)
+    }
+
+    override fun approveMerchantApplication(userId: String): Boolean {
+        // 查找商家申请
+        val application = merchantApplicationRepository.findApplicationByUserId(userId)
+            ?: throw IllegalArgumentException("未找到商家申请")
+
+        // 更新申请状态为通过
+        val updated = merchantApplicationRepository.updateApplicationStatus(userId, ApplicationStatus.APPROVED)
+
+        // 如果申请通过，更新用户角色为商家
+        if (updated) {
+            return userRepository.updateUserRole(userId, Role.MERCHANT)
+        }
+        return false
+    }
+
+    override fun updateUserInfo(userId: String, updateRequest: UserInfoUpdateRequest): Boolean {
+        // 获取当前用户信息
+        val user = userRepository.findUserById(userId)
+            ?: throw IllegalArgumentException("用户不存在")
+
+        // 检查新邮箱或手机号是否已被其他用户使用
+        if (updateRequest.email != null && userRepository.checkDuplicateEmailOrPhone(updateRequest.email, null)) {
+            throw IllegalArgumentException("邮箱已被其他用户使用")
+        }
+
+        if (updateRequest.phone != null && userRepository.checkDuplicateEmailOrPhone(null, updateRequest.phone)) {
+            throw IllegalArgumentException("手机号已被其他用户使用")
+        }
+
+        // 更新用户信息
+        val updatedUser = user.copy(
+            username = updateRequest.username ?: user.username,
+            email = updateRequest.email ?: user.email,
+            phone = updateRequest.phone ?: user.phone,
+            avatarUrl = updateRequest.avatarUrl ?: user.avatarUrl,
+            bio = updateRequest.bio ?: user.bio
+        )
+
+        return userRepository.updateUser(updatedUser)
     }
 
     private fun String.isPhoneNumber(): Boolean {

@@ -4,9 +4,17 @@ import IUserCommentRepository
 import com.example.models.transmissionModels.community.interaction.CommentTargetType
 import com.example.models.transmissionModels.community.interaction.UserComment
 
-class UserCommentService(private val userCommentRepository: IUserCommentRepository) : IUserCommentService {
+class UserCommentService(
+    private val userCommentRepository: IUserCommentRepository
+) : IUserCommentService {
+
     override fun addComment(postId: String, comment: UserComment): Boolean {
-        return true
+        return try {
+            userCommentRepository.add(comment)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     override fun getCommentsByTargetId(targetId: String, targetType: CommentTargetType): List<UserComment> {

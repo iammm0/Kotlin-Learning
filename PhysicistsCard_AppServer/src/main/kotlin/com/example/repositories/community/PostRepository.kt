@@ -20,13 +20,12 @@ class PostRepository : IPostRepository {
     }
 
     override fun addTag(postId: UUID, tag: String): Boolean = transaction {
-        val tagId = PostTags.select { PostTags.name eq tag }
+        val tagId = PostTags.selectAll().where { PostTags.name eq tag }
             .map { it[PostTags.id] }
             .singleOrNull() ?: PostTags.insertAndGetId { it[name] = tag }
 
-        val exists = PostTagRelations.select {
-            (PostTagRelations.postId eq postId) and (PostTagRelations.tagId eq tagId.value)
-        }.count() > 0
+        val exists = PostTagRelations.selectAll()
+            .where { (PostTagRelations.postId eq postId) and (PostTagRelations.tagId eq tagId.value) }.count() > 0
 
         if (!exists) {
             PostTagRelations.insert {
