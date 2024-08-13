@@ -13,7 +13,6 @@ import com.example.physicistscard.android.ui.components.SystemUiController
 import com.example.physicistscard.android.ui.components.navigation.AuthNavigation
 import com.example.physicistscard.android.ui.themes.MyApplicationTheme
 import android.Manifest
-import com.example.physicistscard.businessLogic.IAuthService
 import org.koin.android.ext.android.inject
 
 
@@ -23,9 +22,6 @@ class AuthActivity : ComponentActivity() {
         Manifest.permission.INTERNET,
         Manifest.permission.ACCESS_NETWORK_STATE
     )
-
-    // 使用 Koin 注入 IAuthService
-    private val authService: IAuthService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

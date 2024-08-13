@@ -8,5 +8,7 @@ enum class VerificationType {
     PHONE_REGISTER,
     RESET_PASSWORD,
     EMAIL_LOGIN,
-    PHONE_LOGIN
+    PHONE_LOGIN,
+    BIND_EMAIL,
+    BIND_PHONE
 }

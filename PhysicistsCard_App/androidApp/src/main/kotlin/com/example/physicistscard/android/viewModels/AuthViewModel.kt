@@ -1,46 +1,76 @@
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.physicistscard.businessLogic.IAuthService
-import com.example.physicistscard.transmissionModels.auth.requests.EmailCodeLoginRequest
+import com.example.physicistscard.apiServices.IAuthApiService
+import com.example.physicistscard.transmissionModels.auth.requests.RegistrationRequest
 import com.example.physicistscard.transmissionModels.auth.requests.SendCodeRequest
 import com.example.physicistscard.transmissionModels.auth.responses.LoginResponse
-import com.example.physicistscard.transmissionModels.auth.responses.SendCodeResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel(private val authService: IAuthService) : ViewModel() {
-    private val _loginStatus = MutableStateFlow("")
-    val loginStatus: StateFlow<String> = _loginStatus
+class AuthViewModel(private val authApiService: IAuthApiService) : ViewModel() {
 
-    fun sendVerificationCode(email: String) {
+    private val _loginState = MutableStateFlow<Result<LoginResponse>?>(null)
+    val loginState: StateFlow<Result<LoginResponse>?> = _loginState
+
+    private val _registerState = MutableStateFlow<Result<LoginResponse>?>(null)
+    val registerState: StateFlow<Result<LoginResponse>?> = _registerState
+
+    fun loginWithPassword(identifier: String, password: String) {
         viewModelScope.launch {
             try {
-                val request = SendCodeRequest(identifier = email, operation = "email_register")
-                val response: SendCodeResponse = authService.sendVerificationCode(request)
-                if (response.success) {
-                    _loginStatus.value = "Verification code sent"
-                } else {
-                    _loginStatus.value = "Send failed: ${response.message}"
-                }
+                val response = authApiService.loginWithPassword(identifier, password)
+                _loginState.value = Result.success(response)
             } catch (e: Exception) {
-                _loginStatus.value = "Send failed: ${e.message}"
+                _loginState.value = Result.failure(e)
             }
         }
     }
 
-    fun loginWithEmailCode(email: String, emailCode: String) {
+    fun loginWithVerificationCode(email: String, code: String) {
         viewModelScope.launch {
             try {
-                val request = EmailCodeLoginRequest(email = email, emailCode = emailCode)
-                val response: LoginResponse = authService.emailCodeLogin(request)
-                if (response.success) {
-                    _loginStatus.value = "Login successful"
+                val response = authApiService.loginWithVerificationCode(email, code)
+                _loginState.value = Result.success(response)
+            } catch (e: Exception) {
+                _loginState.value = Result.failure(e)
+            }
+        }
+    }
+
+    fun registerUser(registrationRequest: RegistrationRequest) {
+        viewModelScope.launch {
+            try {
+                val response = authApiService.registerUser(registrationRequest)
+                _registerState.value = Result.success(response)
+            } catch (e: Exception) {
+                _registerState.value = Result.failure(e)
+            }
+        }
+    }
+
+    fun resetPassword(identifier: String, newPassword: String, code: String) {
+        viewModelScope.launch {
+            try {
+                val success = authApiService.resetPassword(identifier, newPassword, code)
+                if (success) {
+                    // Handle success
                 } else {
-                    _loginStatus.value = "Login failed: ${response.errorMessage}"
+                    // Handle failure
                 }
             } catch (e: Exception) {
-                _loginStatus.value = "Request failed: ${e.message}"
+                // Handle error
+            }
+        }
+    }
+
+    fun sendVerificationCode(identifier: String) {
+        viewModelScope.launch {
+            try {
+                val response = authApiService.sendVerificationCode(identifier, SendCodeRequest(identifier))
+                // Handle success
+            } catch (e: Exception) {
+                // Handle error
             }
         }
     }

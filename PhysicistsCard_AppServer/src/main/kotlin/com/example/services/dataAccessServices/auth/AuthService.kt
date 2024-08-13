@@ -2,6 +2,7 @@ package com.example.services.dataAccessServices.auth
 
 import IUserRepository
 import at.favre.lib.crypto.bcrypt.BCrypt
+import com.example.models.transmissionModels.auth.merchant.ApplicationStatus
 import com.example.models.transmissionModels.auth.merchant.MerchantApplication
 import com.example.models.transmissionModels.auth.requests.*
 import com.example.models.transmissionModels.auth.user.User
@@ -81,6 +82,8 @@ class AuthService(
             "reset_password" -> VerificationType.RESET_PASSWORD
             "email_register" -> VerificationType.EMAIL_REGISTER
             "email_login" -> VerificationType.EMAIL_LOGIN
+            "bind_email" -> VerificationType.BIND_EMAIL
+            "bind_phone" -> VerificationType.BIND_PHONE
             else -> throw IllegalArgumentException("无效的操作类型")
         }
 
@@ -130,21 +133,26 @@ class AuthService(
     }
 
     override fun loginWithVerificationCode(identifier: String, code: String): LoginResponse {
+        // 查找用户
         val user = userRepository.findUserByEmailOrPhone(identifier)
-            ?: return LoginResponse(success = false, token = null, refreshToken = null,errorMessage = "用户不存在")
+            ?: return LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "用户不存在")
 
-        val verifiedIdentifier = user.email ?: user.phone ?: return LoginResponse(success = false, token = null, refreshToken = null,errorMessage = "无效的用户标识")
-
-        val isValidCode = verificationCodeRepository.verifyCode(verifiedIdentifier, code)
-        return if (isValidCode) {
-            val accessToken = tokenService.generateToken(user)
-            val refreshToken = refreshTokenRepository.generateRefreshToken(user)
-            verificationCodeRepository.deleteExpiredVerificationCodes()
-            LoginResponse(success = true, token = accessToken, refreshToken = refreshToken, errorMessage = null)
-        } else {
-            LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "验证码无效或已过期")
+        // 验证验证码并标记为已使用
+        val isValidCode = verificationCodeRepository.verifyAndMarkCodeAsUsed(identifier, code)
+        if (!isValidCode) {
+            return LoginResponse(success = false, token = null, refreshToken = null, errorMessage = "验证码无效或已过期")
         }
+
+        // 生成 JWT 令牌
+        val accessToken = tokenService.generateToken(user)
+        val refreshToken = refreshTokenRepository.generateRefreshToken(user)
+
+        // 删除过期验证码
+        verificationCodeRepository.deleteExpiredVerificationCodes()
+
+        return LoginResponse(success = true, token = accessToken, refreshToken = refreshToken, errorMessage = null)
     }
+
 
     override fun refreshToken(refreshToken: String): LoginResponse {
         val userId = refreshTokenRepository.getUserIdFromToken(refreshToken)
@@ -238,7 +246,7 @@ class AuthService(
         // 验证旧邮箱的验证码（如果有旧邮箱）
         user.email?.let { oldEmail ->
             if (oldEmailVerificationCode == null || !verificationCodeRepository.verifyCode(oldEmail, oldEmailVerificationCode)) {
-                throw IllegalArgumentException("旧邮箱验证码错误或已过期")
+                throw IllegalArgumentException("旧邮箱验证码无效")
             }
         }
 

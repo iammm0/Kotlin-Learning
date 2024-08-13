@@ -1,5 +1,6 @@
 package com.example.routes.auth
 
+import com.example.models.transmissionModels.auth.merchant.ApplicationStatus
 import com.example.models.transmissionModels.auth.merchant.MerchantApplication
 import com.example.models.transmissionModels.auth.merchant.MerchantApplicationRequest
 import com.example.models.transmissionModels.auth.requests.*
@@ -381,3 +382,5 @@ fun Application.authRoutes(
         }
     }
 }
+
+

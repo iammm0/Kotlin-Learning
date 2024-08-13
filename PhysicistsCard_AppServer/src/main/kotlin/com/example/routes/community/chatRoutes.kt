@@ -1,68 +1,82 @@
-package com.example.routes
+package com.example.routes.community
 
-
-import com.example.models.transmissionModels.community.Message
-import com.example.models.transmissionModels.community.MessageType
+import com.example.services.dataAccessServices.community.IFriendshipService
+import com.example.services.dataAccessServices.community.IMessageService
+import com.example.utils.WebSocketManager
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.*
-import java.util.concurrent.ConcurrentHashMap
+import java.time.Duration
 
-fun Application.chatRoutes() {
-    val connections = Collections.newSetFromMap(ConcurrentHashMap<DefaultWebSocketServerSession, Boolean>())
+
+fun Application.chatRoutes(
+    messageService: IMessageService,
+    friendshipService: IFriendshipService
+) {
+    install(WebSockets) { // 配置WebSocket
+        contentConverter = KotlinxWebsocketSerializationConverter(Json)
+        pingPeriod = Duration.ofMinutes(1)
+        timeout = Duration.ofSeconds(15)
+        maxFrameSize = Long.MAX_VALUE
+        masking = false
+    }
+
+    val webSocketManager = WebSocketManager(messageService)
 
     routing {
-        route("/community/chat") {
-            webSocket {
-                val session = this
+        webSocket("/chat") {
+            val userId = call.parameters["userId"] ?: return@webSocket close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Invalid User ID"))
 
-                for (frame in incoming) {
-                    when (frame) {
-                        is Frame.Text -> {
-                            val receivedText = frame.readText()
-                            println("Received: $receivedText")
+            // 用户连接，保存会话
+            webSocketManager.connect(userId, this)
 
-                            try {
-                                val message = Json.decodeFromString<Message>(receivedText)
-                                println("Message from ${message.senderId} to ${message.receiverId}: ${message.content}")
+            // 处理用户的消息帧
+            webSocketManager.handleIncomingFrames(userId, this)
+        }
+    }
 
-                                // 创建响应消息
-                                val responseMessage = Message(
-                                    messageId = "server-generated-id",
-                                    senderId = "server",
-                                    receiverId = message.senderId,
-                                    content = "Echo: ${message.content}",
-                                    timestamp = LocalDateTime.now(ZoneId.systemDefault()),
-                                    messageType = MessageType.TEXT
-                                )
+    routing {
+        authenticate {
+            post("/send-friend-request") {
+                val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
+                val senderId = principal.payload.getClaim("userId").asString()
+                val receiverId = call.receive<String>()
 
-                                // 发送响应消息给客户端
-                                session.send(Frame.Text(Json.encodeToString(responseMessage)))
-                            } catch (e: Exception) {
-                                println("Failed to parse message: $e")
-                            }
-                        }
-                        is Frame.Binary -> {
-                            // 处理二进制数据
-                        }
-                        is Frame.Ping -> {
-                            // 处理 Ping
-                        }
-                        is Frame.Pong -> {
-                            // 处理 Pong
-                        }
-                        is Frame.Close -> {
-                            // 处理关闭请求
-                            println("Client disconnected")
-                        }
-                    }
+                val result = friendshipService.sendFriendRequest(senderId, receiverId)
+                if (result) {
+                    call.respond(HttpStatusCode.OK, "好友请求已发送")
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "好友请求已存在或其他错误")
                 }
+            }
+
+            post("/accept-friend-request") {
+                val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
+                val userId = principal.payload.getClaim("userId").asString()
+                val friendId = call.receive<String>()
+
+                val result = friendshipService.acceptFriendRequest(userId, friendId)
+                if (result) {
+                    call.respond(HttpStatusCode.OK, "好友请求已接受")
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "接受好友请求失败")
+                }
+            }
+
+            get("/friends") {
+                val principal = call.principal<JWTPrincipal>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
+                val userId = principal.payload.getClaim("userId").asString()
+
+                val friends = friendshipService.getFriends(userId)
+                call.respond(HttpStatusCode.OK, friends)
             }
         }
     }

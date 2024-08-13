@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.kotlinxSerialization) // 添加这一行
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -59,5 +60,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)
+    implementation(project(":shared"))
     debugImplementation(libs.compose.ui.tooling)
 }

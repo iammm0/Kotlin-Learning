@@ -20,7 +20,7 @@ class VerificationCodeRepository : IVerificationCodeRepository {
         type: VerificationType
     ): Boolean {
         val createTime = LocalDateTime.now()
-        val expiryTime = createTime.plusMinutes(validityDuration) // 有效期以分钟为单位
+        val expiryTime = createTime.plusMinutes(validityDuration)
         val expiryTimeInstant = expiryTime.atZone(ZoneId.systemDefault()).toInstant()
 
         return try {
@@ -65,13 +65,51 @@ class VerificationCodeRepository : IVerificationCodeRepository {
         }
     }
 
-    private fun markCodeAsUsed(codeId: Int): Boolean {
+    // 实现根据 codeId 标记验证码为已使用
+    override fun markCodeAsUsed(codeId: Int): Boolean {
         return transaction {
             addLogger(StdOutSqlLogger)
             val updatedRows = VerificationCodes.update({ VerificationCodes.id eq codeId }) {
                 it[isUsed] = true
             }
             updatedRows > 0
+        }
+    }
+
+    override fun verifyAndMarkCodeAsUsed(identifier: String, code: String): Boolean {
+        val now = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()
+
+        return transaction {
+            addLogger(StdOutSqlLogger)
+
+            val codeQuery = VerificationCodes.select {
+                (VerificationCodes.code eq code) and
+                        (VerificationCodes.target eq identifier) and
+                        (VerificationCodes.expiryDate greaterEq now) and
+                        (VerificationCodes.isUsed eq false)
+            }
+
+            if (codeQuery.count() > 0) {
+                val codeId = codeQuery.single()[VerificationCodes.id].value
+                val updatedRows = VerificationCodes.update({ VerificationCodes.id eq codeId }) {
+                    it[isUsed] = true
+                }
+                updatedRows > 0 // 返回 true 表示验证成功，并标记为已使用
+            } else {
+                false
+            }
+        }
+    }
+
+    // 实现根据 identifier 和 code 标记验证码为已使用
+    override fun markCodeAsUsed(identifier: String, code: String): Boolean {
+        return transaction {
+            addLogger(StdOutSqlLogger)
+            val codeId = VerificationCodes
+                .selectAll().where { (VerificationCodes.target eq identifier) and (VerificationCodes.code eq code) }
+                .singleOrNull()?.get(VerificationCodes.id)?.value ?: return@transaction false
+
+            markCodeAsUsed(codeId)
         }
     }
 

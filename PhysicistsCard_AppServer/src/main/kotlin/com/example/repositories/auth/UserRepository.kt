@@ -145,7 +145,18 @@ class UserRepository :  IUserRepository {
     override fun checkDuplicateEmailOrPhone(email: String?, phone: String?): Boolean {
         return transaction {
             addLogger(StdOutSqlLogger)
-            Users.selectAll().where { (Users.email eq email) or (Users.phone eq phone) }.count() > 0
+
+            // 使用 selectAll() 并在后面添加条件筛选
+            val query = Users.selectAll().apply {
+                when {
+                    email != null && phone != null -> adjustWhere { (Users.email eq email) or (Users.phone eq phone) }
+                    email != null -> adjustWhere { Users.email eq email }
+                    phone != null -> adjustWhere { Users.phone eq phone }
+                    else -> adjustWhere { Op.FALSE } // 无意义的操作，因为 email 和 phone 都是 null
+                }
+            }
+
+            query.count() > 0
         }
     }
 

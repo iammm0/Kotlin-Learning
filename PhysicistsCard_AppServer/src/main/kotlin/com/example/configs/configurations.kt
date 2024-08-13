@@ -43,13 +43,7 @@ fun Application.configurations() {
 
     install(XHttpMethodOverride) // 允许使用X-HTTP-Method-Override头字段来覆盖HTTP方法
 
-    install(WebSockets) { // 配置WebSocket
-        contentConverter = KotlinxWebsocketSerializationConverter(Json)
-        pingPeriod = Duration.ofMinutes(1)
-        timeout = Duration.ofSeconds(15)
-        maxFrameSize = Long.MAX_VALUE
-        masking = false
-    }
+
 
     // 配置日志记录设置
     install(CallLogging) {

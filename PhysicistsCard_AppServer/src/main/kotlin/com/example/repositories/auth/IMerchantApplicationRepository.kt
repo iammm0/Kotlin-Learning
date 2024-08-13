@@ -1,6 +1,6 @@
 package com.example.repositories.auth
 
-import com.example.models.transmissionModels.auth.requests.ApplicationStatus
+import com.example.models.transmissionModels.auth.merchant.ApplicationStatus
 import com.example.models.transmissionModels.auth.merchant.MerchantApplication
 
 interface IMerchantApplicationRepository {

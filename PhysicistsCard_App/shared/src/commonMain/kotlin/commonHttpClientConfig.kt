@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 expect fun createCommonHttpClient(config: HttpClientConfig<*>.() -> Unit = {}): HttpClient
 
 fun commonHttpClientConfig(config: HttpClientConfig<*>.() -> Unit) = HttpClient {
+
     install(ContentNegotiation) {
         json(Json {
             prettyPrint = true
@@ -16,8 +17,10 @@ fun commonHttpClientConfig(config: HttpClientConfig<*>.() -> Unit) = HttpClient 
             ignoreUnknownKeys = true
         })
     }
+
     install(Logging) {
         level = LogLevel.BODY
     }
+
     config(this)
 }

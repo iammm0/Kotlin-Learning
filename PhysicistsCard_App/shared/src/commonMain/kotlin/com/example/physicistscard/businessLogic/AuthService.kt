@@ -1,84 +1,150 @@
 package com.example.physicistscard.businessLogic
 
-
-import com.example.physicistscard.apiServices.AuthApi
-import com.example.physicistscard.transmissionModels.auth.requests.EmailCodeLoginRequest
-import com.example.physicistscard.transmissionModels.auth.requests.PasswordLoginRequest
-import com.example.physicistscard.transmissionModels.auth.requests.PhoneCodeLoginRequest
+import com.example.physicistscard.apiServices.IAuthApiService
+import com.example.physicistscard.transmissionModels.auth.MerchantApplication
+import com.example.physicistscard.transmissionModels.auth.requests.AddAccountRequest
 import com.example.physicistscard.transmissionModels.auth.requests.RegistrationRequest
-import com.example.physicistscard.transmissionModels.auth.requests.ResetPasswordRequest
 import com.example.physicistscard.transmissionModels.auth.requests.SendCodeRequest
+import com.example.physicistscard.transmissionModels.auth.requests.UserInfoUpdateRequest
 import com.example.physicistscard.transmissionModels.auth.responses.LoginResponse
-import com.example.physicistscard.transmissionModels.auth.responses.ResetPasswordResponse
 import com.example.physicistscard.transmissionModels.auth.responses.SendCodeResponse
-import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.statement.*
+import com.example.physicistscard.transmissionModels.auth.user.Role
+import com.example.physicistscard.utils.TokenManager
 
-/**
- * AuthService处理认证相关的业务逻辑
- * @param authApi 注入的AuthApi接口实现
- */
-class AuthService(private val authApi: AuthApi) : IAuthService {
+class AuthService(
+    private val authApiService: IAuthApiService,
+    private val tokenManager: TokenManager
+) : IAuthService {
 
-    /**
-     * 注册用户
-     * @param registrationRequest 注册请求对象
-     * @return 注册响应对象
-     */
-    override suspend fun registerUser(registrationRequest: RegistrationRequest): HttpResponse {
-        try {
-            return authApi.register(registrationRequest)
-        } catch (e: ClientRequestException) {
-            throw Exception("注册失败: ${e.response.status}")
+    override suspend fun loginUser(email: String, password: String): Result<LoginResponse> {
+        return try {
+            val response = authApiService.loginWithPassword(email, password)
+            if (response.success) {
+                Result.success(response)
+            } else {
+                Result.failure(Exception(response.errorMessage))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
-    /**
-     * 发送验证码
-     * @param sendCodeRequest 发送验证码请求对象
-     * @return 发送验证码响应对象
-     */
-    override suspend fun sendVerificationCode(sendCodeRequest: SendCodeRequest): SendCodeResponse {
-        return authApi.sendCode(sendCodeRequest)
+    override suspend fun registerUser(registrationRequest: RegistrationRequest): Result<LoginResponse> {
+        return try {
+            val response = authApiService.registerUser(registrationRequest)
+            if (response.success) {
+                Result.success(response)
+            } else {
+                Result.failure(Exception(response.errorMessage))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    /**
-     * 使用密码登录
-     * @param loginRequest 登录请求对象
-     * @return 登录响应对象
-     */
-    override suspend fun loginWithPassword(loginRequest: PasswordLoginRequest): LoginResponse {
-        return authApi.login(loginRequest)
+    override suspend fun sendVerificationCode(identifier: String, request: SendCodeRequest): Result<SendCodeResponse> {
+        return try {
+            val response = authApiService.sendVerificationCode(identifier, request)
+            if (response.success) {
+                Result.success(response)
+            } else {
+                Result.failure(Exception(response.message))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    /**
-     * 使用邮箱验证码登录
-     * @param loginRequest 邮箱验证码登录请求对象
-     * @return 登录响应对象
-     */
-    override suspend fun emailCodeLogin(loginRequest: EmailCodeLoginRequest): LoginResponse {
-        return authApi.emailCodeLogin(loginRequest)
+    override suspend fun resetPassword(identifier: String, newPassword: String, code: String): Result<Boolean> {
+        return try {
+            val success = authApiService.resetPassword(identifier, newPassword, code)
+            Result.success(success)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    /**
-     * 使用手机验证码登录
-     * @param loginRequest 手机验证码登录请求对象
-     * @return 登录响应对象
-     */
-    override suspend fun phoneCodeLogin(loginRequest: PhoneCodeLoginRequest): LoginResponse {
-        return authApi.phoneCodeLogin(loginRequest)
+    override suspend fun refreshToken(refreshToken: String): Result<LoginResponse> {
+        return try {
+            val response = authApiService.refreshToken(refreshToken)
+
+            if (response.success) {
+                // 成功刷新token，保存新令牌
+                tokenManager.saveTokens(response.token ?: "", response.refreshToken ?: "")
+                Result.success(response)
+            } else {
+                // 如果刷新失败，返回失败结果
+                Result.failure(Exception("刷新令牌失败: ${response.errorMessage}"))
+            }
+        } catch (e: Exception) {
+            // 捕获异常并返回失败结果
+            Result.failure(e)
+        }
     }
 
-    /**
-     * 重置密码
-     * @param resetPasswordRequest 重置密码请求对象
-     * @return 重置密码响应对象
-     */
-    override suspend fun resetPassword(resetPasswordRequest: ResetPasswordRequest): ResetPasswordResponse {
-        try {
-            return authApi.resetPassword(resetPasswordRequest)
-        } catch (e: ClientRequestException) {
-            throw Exception("重置密码失败: ${e.response.status}")
+    override suspend fun logout(userId: String): Result<Boolean> {
+        return try {
+            val success = authApiService.logout(userId, tokenManager)
+            if (success) {
+                tokenManager.clearTokens()
+            }
+            Result.success(success)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun applyForMerchant(userId: String, application: MerchantApplication): Result<Boolean> {
+        return try {
+            val success = authApiService.applyForMerchant(userId, application, tokenManager)
+            Result.success(success)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun approveMerchantApplication(userId: String): Result<Boolean> {
+        return try {
+            val success = authApiService.approveMerchantApplication(userId, tokenManager)
+            Result.success(success)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateUserInfo(userId: String, request: UserInfoUpdateRequest): Result<Boolean> {
+        return try {
+            val success = authApiService.updateUserInfo(userId, request, tokenManager)
+            Result.success(success)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun bindPhone(userId: String, newPhone: String, oldPhoneCode: String): Result<Boolean> {
+        return try {
+            val success = authApiService.bindPhone(userId, newPhone, oldPhoneCode, tokenManager)
+            Result.success(success)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun bindEmail(userId: String, newEmail: String, oldEmailCode: String): Result<Boolean> {
+        return try {
+            val success = authApiService.bindEmail(userId, newEmail, oldEmailCode, tokenManager)
+            Result.success(success)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun addAccount(request: AddAccountRequest, currentUserRole: Role): Result<Boolean> {
+        return try {
+            val success = authApiService.addAccount(request, currentUserRole, tokenManager)
+            Result.success(success)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

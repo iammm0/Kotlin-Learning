@@ -1,6 +1,5 @@
 package com.example.models.transmissionModels.auth.merchant
 
-import com.example.models.transmissionModels.auth.requests.ApplicationStatus
 import com.example.utils.LocalDateTimeSerializer
 import kotlinx.serialization.Serializable
 import java.time.LocalDateTime

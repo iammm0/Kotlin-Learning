@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -7,13 +9,16 @@ plugins {
 kotlin {
 
     androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+            languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
         }
     }
-    
+
+
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -39,6 +44,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.ktor.client.auth)
             implementation(libs.koin.core)
+            implementation(libs.kotlinx.uuid)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)

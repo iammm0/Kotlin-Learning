@@ -18,6 +18,7 @@ import com.example.routes.store.storeRoutes
 import com.example.services.VerificationCodesCleanupService
 import com.example.repositories.community.*
 import com.example.repositories.store.*
+import com.example.routes.community.chatRoutes
 import com.example.services.dataAccessServices.auth.AuthService
 import com.example.services.dataAccessServices.auth.IAuthService
 import com.example.services.dataAccessServices.auth.ITokenService
@@ -92,6 +93,8 @@ fun Application.module() {
     // val weChatPayService = WeChatPayService(client, weChatPayApiKey, weChatPayMchId, weChatPayAppId, weChatPayAppSecret)
     // val alipayService = AlipayService(client, alipayApiKey, alipayAppId, alipayAppPrivateKey, alipayPublicKey)
 
+    val messageRepository: IMessageRepository = MessageRepository()
+    val friendshipRepository: IFriendshipRepository = FriendshipRepository()
     val merchantApplicationRepository: IMerchantApplicationRepository = MerchantApplicationRepository()
     val userRepository: IUserRepository = UserRepository()
     val postRepository: IPostRepository = PostRepository()
@@ -106,6 +109,8 @@ fun Application.module() {
     val refreshTokenRepository: IRefreshTokenRepository = RefreshTokenRepository()
     val postStatsRepository: IPostStatsRepository = PostStatsRepository()
 
+    val messageService: IMessageService = MessageService(messageRepository)
+    val friendshipService: IFriendshipService = FriendshipService(friendshipRepository)
     val postStatService: IPostStatService = PostStatService(postStatsRepository)
     val contentService: IContentService = ContentService()
     val verificationCodesCleanupService = VerificationCodesCleanupService(verificationCodeRepository)
@@ -134,6 +139,7 @@ fun Application.module() {
         favoriteService,
         postStatService
     )
+    chatRoutes(messageService,friendshipService)
     storeRoutes(
         productService,
         orderService,
