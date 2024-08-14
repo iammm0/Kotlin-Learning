@@ -2,6 +2,7 @@ package com.example.physicistscard.transmissionModels.community.post
 
 import com.example.physicistscard.utils.UUIDSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.uuid.UUID
 
 @Serializable
 data class PostStat(

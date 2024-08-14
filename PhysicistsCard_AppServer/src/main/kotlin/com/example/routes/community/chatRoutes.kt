@@ -1,7 +1,9 @@
 package com.example.routes.community
 
+import com.example.services.dataAccessServices.auth.AuthService
 import com.example.services.dataAccessServices.community.IFriendshipService
 import com.example.services.dataAccessServices.community.IMessageService
+import com.example.services.dataAccessServices.community.IUserService
 import com.example.utils.WebSocketManager
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
@@ -19,7 +21,8 @@ import java.time.Duration
 
 fun Application.chatRoutes(
     messageService: IMessageService,
-    friendshipService: IFriendshipService
+    friendshipService: IFriendshipService,
+    userService: IUserService
 ) {
     install(WebSockets) { // 配置WebSocket
         contentConverter = KotlinxWebsocketSerializationConverter(Json)
@@ -32,6 +35,7 @@ fun Application.chatRoutes(
     val webSocketManager = WebSocketManager(messageService)
 
     routing {
+
         webSocket("/chat") {
             val userId = call.parameters["userId"] ?: return@webSocket close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Invalid User ID"))
 
@@ -45,6 +49,7 @@ fun Application.chatRoutes(
 
     routing {
         authenticate {
+
             post("/send-friend-request") {
                 val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
                 val senderId = principal.payload.getClaim("userId").asString()
@@ -77,6 +82,23 @@ fun Application.chatRoutes(
 
                 val friends = friendshipService.getFriends(userId)
                 call.respond(HttpStatusCode.OK, friends)
+            }
+
+            // 新增的获取用户个人信息的 API 端点
+            get("/user/{targetUserId}") {
+                val principal = call.principal<JWTPrincipal>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
+                val targetUserId = call.parameters["targetUserId"] ?: return@get call.respond(HttpStatusCode.BadRequest, "缺少用户ID")
+
+                try {
+                    val userInfo = userService.findUserById(targetUserId)
+                    if (userInfo != null) {
+                        call.respond(HttpStatusCode.OK, userInfo)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, "用户未找到")
+                    }
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.InternalServerError, "服务器错误: ${e.localizedMessage}")
+                }
             }
         }
     }

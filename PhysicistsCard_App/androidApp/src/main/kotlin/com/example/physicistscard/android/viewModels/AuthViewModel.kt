@@ -10,68 +10,130 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(private val authApiService: IAuthApiService) : ViewModel() {
 
+    // Login state management
     private val _loginState = MutableStateFlow<Result<LoginResponse>?>(null)
     val loginState: StateFlow<Result<LoginResponse>?> = _loginState
 
+    // Registration state management
     private val _registerState = MutableStateFlow<Result<LoginResponse>?>(null)
     val registerState: StateFlow<Result<LoginResponse>?> = _registerState
 
+    // Password reset state
+    private val _resetPasswordState = MutableStateFlow<Result<Boolean>?>(null)
+    val resetPasswordState: StateFlow<Result<Boolean>?> = _resetPasswordState
+
+    // Verification code sending state
+    private val _sendCodeState = MutableStateFlow<Result<Boolean>?>(null)
+    val sendCodeState: StateFlow<Result<Boolean>?> = _sendCodeState
+
+    // 邮箱验证码登录状态
+    private val _loginWithEmailCodeState = MutableStateFlow<Result<LoginResponse>?>(null)
+    val loginWithEmailCodeState: StateFlow<Result<LoginResponse>?> = _loginWithEmailCodeState
+
+    // 手机验证码登录状态
+    private val _loginWithPhoneCodeState = MutableStateFlow<Result<LoginResponse>?>(null)
+    val loginWithPhoneCodeState: StateFlow<Result<LoginResponse>?> = _loginWithPhoneCodeState
+
+
+    // 使用邮箱验证码登录
+    fun loginWithEmailCode(email: String, code: String) {
+        viewModelScope.launch {
+            _loginWithEmailCodeState.value = try {
+                val response = authApiService.loginWithVerificationCode(email, code)
+                Result.success(response)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    // 使用手机验证码登录
+    fun loginWithPhoneCode(phone: String, code: String) {
+        viewModelScope.launch {
+            _loginWithPhoneCodeState.value = try {
+                val response = authApiService.loginWithVerificationCode(phone, code)
+                Result.success(response)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    // Login with password
     fun loginWithPassword(identifier: String, password: String) {
         viewModelScope.launch {
-            try {
+            _loginState.value = try {
                 val response = authApiService.loginWithPassword(identifier, password)
-                _loginState.value = Result.success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                _loginState.value = Result.failure(e)
+                Result.failure(e)
             }
         }
     }
 
+    // Login with verification code
     fun loginWithVerificationCode(email: String, code: String) {
         viewModelScope.launch {
-            try {
+            _loginState.value = try {
                 val response = authApiService.loginWithVerificationCode(email, code)
-                _loginState.value = Result.success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                _loginState.value = Result.failure(e)
+                Result.failure(e)
             }
         }
     }
 
+    // Register new user
     fun registerUser(registrationRequest: RegistrationRequest) {
         viewModelScope.launch {
-            try {
+            _registerState.value = try {
                 val response = authApiService.registerUser(registrationRequest)
-                _registerState.value = Result.success(response)
+                Result.success(response)
             } catch (e: Exception) {
-                _registerState.value = Result.failure(e)
+                Result.failure(e)
             }
         }
     }
 
+    // Reset password
     fun resetPassword(identifier: String, newPassword: String, code: String) {
         viewModelScope.launch {
-            try {
+            _resetPasswordState.value = try {
                 val success = authApiService.resetPassword(identifier, newPassword, code)
-                if (success) {
-                    // Handle success
-                } else {
-                    // Handle failure
-                }
+                Result.success(success)
             } catch (e: Exception) {
-                // Handle error
+                Result.failure(e)
             }
         }
     }
 
-    fun sendVerificationCode(identifier: String) {
+    // Send verification code
+    fun sendVerificationCode(identifier: String, operation: String) {
         viewModelScope.launch {
-            try {
-                val response = authApiService.sendVerificationCode(identifier, SendCodeRequest(identifier))
-                // Handle success
+            _sendCodeState.value = try {
+                authApiService.sendVerificationCode(identifier, SendCodeRequest(identifier, operation))
+                Result.success(true)
             } catch (e: Exception) {
-                // Handle error
+                Result.failure(e)
             }
         }
     }
+
+    // Clear state functions (optional)
+    fun clearLoginState() {
+        _loginState.value = null
+    }
+
+    fun clearRegisterState() {
+        _registerState.value = null
+    }
+
+    fun clearResetPasswordState() {
+        _resetPasswordState.value = null
+    }
+
+    fun clearSendCodeState() {
+        _sendCodeState.value = null
+    }
 }
+

@@ -1,5 +1,7 @@
 package com.example.physicistscard.android.activities
 
+import AuthViewModel
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,8 +14,7 @@ import androidx.core.content.ContextCompat
 import com.example.physicistscard.android.ui.components.SystemUiController
 import com.example.physicistscard.android.ui.components.navigation.AuthNavigation
 import com.example.physicistscard.android.ui.themes.MyApplicationTheme
-import android.Manifest
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class AuthActivity : ComponentActivity() {
@@ -22,6 +23,8 @@ class AuthActivity : ComponentActivity() {
         Manifest.permission.INTERNET,
         Manifest.permission.ACCESS_NETWORK_STATE
     )
+
+    private val authViewModel: AuthViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +36,7 @@ class AuthActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     SystemUiController() // 调用来隐藏状态栏
-                    AuthNavigation(authService)
+                    AuthNavigation(authViewModel)
                 }
             }
         }

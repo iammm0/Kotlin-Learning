@@ -18,6 +18,10 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import com.example.physicistscard.android.viewModels.CommunityViewModel
+import com.example.physicistscard.android.viewModels.FriendshipViewModel
+import com.example.physicistscard.android.viewModels.UserViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
     // 根据系统版本选择需要的权限
@@ -42,6 +46,10 @@ class MainActivity : ComponentActivity() {
         }
     }.toTypedArray()
 
+    private val friendshipViewModel: FriendshipViewModel by viewModel()
+    private val communityViewModel: CommunityViewModel by viewModel()
+    private val userViewModel: UserViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 根据实际键名和数据类型获取Intent中的额外数据
@@ -59,7 +67,7 @@ class MainActivity : ComponentActivity() {
                     // 隐藏状态栏
                     SystemUiController()
                     // 显示主屏幕
-                    MainScreen(navController)
+                    MainScreen(navController, friendshipViewModel)
                 }
             }
         }

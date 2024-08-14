@@ -1,5 +1,6 @@
 package com.example.physicistscard.android.ui.components.navigation
 
+import AuthViewModel
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -15,10 +16,9 @@ import com.example.physicistscard.android.ui.screens.authScreens.RegisterEmailSc
 import com.example.physicistscard.android.ui.screens.authScreens.RegisterPhoneScreen
 import com.example.physicistscard.android.ui.screens.authScreens.StartScreen
 import com.example.physicistscard.android.ui.screens.storeScreens.StoreScreen
-import com.example.physicistscard.businessLogic.IAuthService
 
 @Composable
-fun AuthNavigation(authService: IAuthService) {
+fun AuthNavigation(authViewModel: AuthViewModel) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -41,7 +41,7 @@ fun AuthNavigation(authService: IAuthService) {
         composable("phone_register") { RegisterPhoneScreen(navController) }
         composable("email_register") { RegisterEmailScreen(navController) }
         composable("phone_login") { LoginPhoneScreen(navController) }
-        composable("email_login") { LoginEmailScreen(navController, authService) }
+        composable("email_login") { LoginEmailScreen(navController) }
         composable(BottomNavItem.Store.route) { StoreScreen(navController) }
     }
 }

@@ -18,10 +18,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.physicistscard.android.ui.components.navigation.BottomNavItem
 import com.example.physicistscard.android.ui.components.navigation.NavigationHost
+import com.example.physicistscard.android.viewModels.FriendshipViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(
+    navController: NavHostController,
+    friendshipViewModel: FriendshipViewModel
+) {
 
     val items = listOf(
         BottomNavItem.Store,
@@ -103,6 +107,6 @@ fun MainScreen(navController: NavHostController) {
             }
         }
     ) {
-        NavigationHost(navController)
+        NavigationHost(navController, friendshipViewModel)
     }
 }

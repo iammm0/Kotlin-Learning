@@ -23,9 +23,16 @@ import com.example.physicistscard.transmissionModels.auth.user.User
 import com.example.physicistscard.transmissionModels.community.Message
 
 @Composable
-fun MessageBubble(message: Message, currentUser: User, navController: NavController) {
-    val isOwnMessage = message.sender.userId == currentUser.userId
+fun MessageBubble(
+    message: Message,
+    currentUser: User,
+    navController: NavController
+) {
+    // 判断消息是否是当前用户发送的
+    val isOwnMessage = message.senderId == currentUser.userId
+    // 根据消息发送者设置背景颜色
     val backgroundColor = if (isOwnMessage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+    // 根据消息发送者设置消息排列方向
     val alignment = if (isOwnMessage) Arrangement.End else Arrangement.Start
 
     Row(
@@ -36,9 +43,9 @@ fun MessageBubble(message: Message, currentUser: User, navController: NavControl
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (!isOwnMessage) {
-            // 左侧消息时显示对方头像
-            AvatarImage(avatarUrl = message.sender.avatarUrl) {
-                navController.navigate("friend_profile/${message.sender.userId}")
+            // 显示对方的头像
+            AvatarImage(avatarUrl = currentUser.avatarUrl) {
+                navController.navigate("friend_profile/${message.senderId}")
             }
             Spacer(modifier = Modifier.width(8.dp))
         }
@@ -46,7 +53,7 @@ fun MessageBubble(message: Message, currentUser: User, navController: NavControl
         Column(
             horizontalAlignment = if (isOwnMessage) Alignment.End else Alignment.Start
         ) {
-            // 消息内容
+            // 显示消息内容
             Text(
                 text = message.content,
                 fontSize = 16.sp,
@@ -60,9 +67,9 @@ fun MessageBubble(message: Message, currentUser: User, navController: NavControl
                     .widthIn(min = 50.dp, max = 250.dp)
             )
 
-            // 消息时间
+            // 显示消息的时间戳
             Text(
-                text = message.timestamp.toString(), // 显示时间
+                text = message.timestamp.toString(),
                 fontSize = 10.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(top = 4.dp)
@@ -71,9 +78,9 @@ fun MessageBubble(message: Message, currentUser: User, navController: NavControl
 
         if (isOwnMessage) {
             Spacer(modifier = Modifier.width(8.dp))
-            // 右侧消息时显示自己的头像
-            AvatarImage(avatarUrl = message.sender.avatarUrl) {
-                navController.navigate("friend_profile/${message.sender.userId}")
+            // 显示当前用户的头像
+            AvatarImage(avatarUrl = currentUser.avatarUrl) {
+                navController.navigate("friend_profile/${message.senderId}")
             }
         }
     }

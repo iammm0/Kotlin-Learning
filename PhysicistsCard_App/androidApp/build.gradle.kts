@@ -62,4 +62,5 @@ dependencies {
     implementation(libs.kotlinx.datetime)
     implementation(project(":shared"))
     debugImplementation(libs.compose.ui.tooling)
+    implementation(libs.kotlinx.uuid)
 }
