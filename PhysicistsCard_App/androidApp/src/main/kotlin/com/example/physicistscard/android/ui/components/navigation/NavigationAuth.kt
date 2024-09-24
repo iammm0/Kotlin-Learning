@@ -9,12 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.physicistscard.android.ui.screens.authScreens.LoginEmailScreen
-import com.example.physicistscard.android.ui.screens.authScreens.LoginNormalScreen
-import com.example.physicistscard.android.ui.screens.authScreens.LoginPhoneScreen
-import com.example.physicistscard.android.ui.screens.authScreens.RegisterEmailScreen
-import com.example.physicistscard.android.ui.screens.authScreens.RegisterPhoneScreen
-import com.example.physicistscard.android.ui.screens.authScreens.StartScreen
+import com.example.physicistscard.android.auth.LoginEmailScreen
+import com.example.physicistscard.android.auth.LoginNormalScreen
+import com.example.physicistscard.android.auth.LoginPhoneScreen
+import com.example.physicistscard.android.auth.RegisterEmailScreen
+import com.example.physicistscard.android.auth.RegisterPhoneScreen
+import com.example.physicistscard.android.auth.StartScreen
 import com.example.physicistscard.android.ui.screens.storeScreens.StoreScreen
 
 @Composable

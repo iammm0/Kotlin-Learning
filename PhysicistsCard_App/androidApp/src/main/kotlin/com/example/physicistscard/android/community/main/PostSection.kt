@@ -1,4 +1,4 @@
-package com.example.physicistscard.android.ui.screens.storeScreens.basicItems
+package com.example.physicistscard.android.community.main
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -17,19 +17,19 @@ import com.example.physicistscard.android.community.main.basicItems.Comment
 import com.example.physicistscard.android.community.main.basicItems.CommentCard
 
 @Composable
-fun ProductSection(comments: List<Comment>, commentTitle: String, productId: String?) {
+fun PostSection(comments: List<Comment>, commentTitle: String, postId: String?) {
     LazyColumn(
         modifier = Modifier.padding(8.dp)
     ) {
-        item {
-            ProductDetail(productId = productId)
+        item { 
+            PostDetail(postId = postId)
         }
-        item {
+        item { 
             Text(
                 text = commentTitle,
                 style = TextStyle(
                     fontSize = 24.sp, // 设置字体大小
-                    color = MaterialTheme.colorScheme.secondary // 设置字体颜色
+                    color = MaterialTheme.colorScheme.secondary, // 设置字体颜色
                 ),
                 modifier = Modifier.padding(vertical = 14.dp, horizontal = 18.dp),
                 fontWeight = FontWeight.Bold

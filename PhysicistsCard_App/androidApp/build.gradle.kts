@@ -60,7 +60,10 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.uuid)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.accompanist.systemuicontroller)
+
     implementation(project(":shared"))
     debugImplementation(libs.compose.ui.tooling)
-    implementation(libs.kotlinx.uuid)
 }

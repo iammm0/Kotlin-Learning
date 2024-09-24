@@ -2,7 +2,6 @@ package com.example.repositories.community
 
 import com.example.models.databaseTableModels.community.interaction.Friendships
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class FriendshipRepository : IFriendshipRepository {

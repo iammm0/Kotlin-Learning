@@ -28,6 +28,9 @@ import com.example.services.dataAccessServices.store.IOrderService
 import com.example.services.dataAccessServices.store.IProductService
 import com.example.services.dataAccessServices.store.OrderService
 import com.example.services.dataAccessServices.store.ProductService
+import com.example.services.thirdPartyProviderServices.AlipayService
+import com.example.services.thirdPartyProviderServices.SFExpressService
+import com.example.services.thirdPartyProviderServices.WeChatPayService
 import com.example.utils.DatabaseConfig
 import com.example.utils.DatabaseTables
 import com.typesafe.config.ConfigFactory
@@ -68,30 +71,29 @@ fun Application.module() {
     // 加载配置
     val config = ConfigFactory.load()
 
-    // val sfExpressApiKey = config.getString("ktor.services.sfExpress.apiKey")
-    // val sfExpressMerchantId = config.getString("ktor.services.sfExpress.merchantId")
-    // val weChatPayApiKey = config.getString("ktor.services.weChatPay.apiKey")
-    // val weChatPayMchId = config.getString("ktor.services.weChatPay.mchId")
-    // val weChatPayAppId = config.getString("ktor.services.weChatPay.appId")
-    // val weChatPayAppSecret = config.getString("ktor.services.weChatPay.appSecret")
-    // val alipayApiKey = config.getString("ktor.services.alipay.apiKey")
-    // val alipayAppId = config.getString("ktor.services.alipay.appId")
-    // val alipayAppPrivateKey = config.getString("ktor.services.alipay.appPrivateKey")
-    // val alipayPublicKey = config.getString("ktor.services.alipay.alipayPublicKey")
-    // val aliyunEmailRegionId = config.getString("ktor.services.aliyunEmail.regionId")
-    // val aliyunEmailAccessKeyId = config.getString("ktor.services.aliyunEmail.accessKeyId")
-    // val aliyunEmailSecret = config.getString("ktor.services.aliyunEmail.secret")
-    // val aliyunEmailFromAddress = config.getString("ktor.services.aliyunEmail.fromAddress")
-    // val aliyunEmailSubject = config.getString("ktor.services.aliyunEmail.subject")
-    // val aliyunSmsRegionId = config.getString("ktor.services.aliyunSms.regionId")
-    // val aliyunSmsAccessKeyId = config.getString("ktor.services.aliyunSms.accessKeyId")
-    // val aliyunSmsAccessKeySecret = config.getString("ktor.services.aliyunSms.accessKeySecret")
-    // val aliyunSmsSignName = config.getString("ktor.services.aliyunSms.signName")
-    // val aliyunSmsTemplateCode = config.getString("ktor.services.aliyunSms.templateCode")
-
-    // val sfExpressService = SFExpressService(client, sfExpressApiKey, sfExpressMerchantId)
-    // val weChatPayService = WeChatPayService(client, weChatPayApiKey, weChatPayMchId, weChatPayAppId, weChatPayAppSecret)
-    // val alipayService = AlipayService(client, alipayApiKey, alipayAppId, alipayAppPrivateKey, alipayPublicKey)
+    val sfExpressApiKey = config.getString("ktor.services.sfExpress.apiKey")
+    val sfExpressMerchantId = config.getString("ktor.services.sfExpress.merchantId")
+    val weChatPayApiKey = config.getString("ktor.services.weChatPay.apiKey")
+    val weChatPayMchId = config.getString("ktor.services.weChatPay.mchId")
+    val weChatPayAppId = config.getString("ktor.services.weChatPay.appId")
+    val weChatPayAppSecret = config.getString("ktor.services.weChatPay.appSecret")
+    val alipayApiKey = config.getString("ktor.services.alipay.apiKey")
+    val alipayAppId = config.getString("ktor.services.alipay.appId")
+    val alipayAppPrivateKey = config.getString("ktor.services.alipay.appPrivateKey")
+    val alipayPublicKey = config.getString("ktor.services.alipay.alipayPublicKey")
+    val aliyunEmailRegionId = config.getString("ktor.services.aliyunEmail.regionId")
+    val aliyunEmailAccessKeyId = config.getString("ktor.services.aliyunEmail.accessKeyId")
+    val aliyunEmailSecret = config.getString("ktor.services.aliyunEmail.secret")
+    val aliyunEmailFromAddress = config.getString("ktor.services.aliyunEmail.fromAddress")
+    val aliyunEmailSubject = config.getString("ktor.services.aliyunEmail.subject")
+    val aliyunSmsRegionId = config.getString("ktor.services.aliyunSms.regionId")
+    val aliyunSmsAccessKeyId = config.getString("ktor.services.aliyunSms.accessKeyId")
+    val aliyunSmsAccessKeySecret = config.getString("ktor.services.aliyunSms.accessKeySecret")
+    val aliyunSmsSignName = config.getString("ktor.services.aliyunSms.signName")
+    val aliyunSmsTemplateCode = config.getString("ktor.services.aliyunSms.templateCode")
+    val sfExpressService = SFExpressService(client, sfExpressApiKey, sfExpressMerchantId)
+    val weChatPayService = WeChatPayService(client, weChatPayApiKey, weChatPayMchId, weChatPayAppId, weChatPayAppSecret)
+    val alipayService = AlipayService(client, alipayApiKey, alipayAppId, alipayAppPrivateKey, alipayPublicKey)
 
     val messageRepository: IMessageRepository = MessageRepository()
     val friendshipRepository: IFriendshipRepository = FriendshipRepository()
@@ -109,6 +111,7 @@ fun Application.module() {
     val refreshTokenRepository: IRefreshTokenRepository = RefreshTokenRepository()
     val postStatsRepository: IPostStatsRepository = PostStatsRepository()
 
+    val userService: IUserService = UserService(userRepository)
     val messageService: IMessageService = MessageService(messageRepository)
     val friendshipService: IFriendshipService = FriendshipService(friendshipRepository)
     val postStatService: IPostStatService = PostStatService(postStatsRepository)
@@ -139,7 +142,7 @@ fun Application.module() {
         favoriteService,
         postStatService
     )
-    chatRoutes(messageService,friendshipService)
+    chatRoutes(messageService, friendshipService, userService)
     storeRoutes(
         productService,
         orderService,

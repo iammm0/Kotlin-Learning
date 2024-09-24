@@ -3,20 +3,14 @@ package com.example.physicistscard.android.ui.screens.settingsScreens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.twotone.List
-import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material.icons.sharp.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import com.example.physicistscard.android.ui.components.layouts.SettingAndManagementTopAppBar
 import com.example.physicistscard.android.ui.components.layouts.TopAppBar
-import com.example.physicistscard.android.ui.screens.managementScreen.basicItems.ManagementDetailList
 
 
 @Composable

@@ -32,9 +32,10 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderDetailTopBar(text: String,
-                    navController: NavController, // 添加NavController参数
-                    onSearchClick: () -> Unit
+fun OrderDetailTopBar(
+    text: String,
+    navController: NavController, // 添加NavController参数
+    onSearchClick: () -> Unit
 ) {
 
     var searchText by remember { mutableStateOf("") }

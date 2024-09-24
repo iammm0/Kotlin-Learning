@@ -1,5 +1,6 @@
 package com.example.physicistscard.android.ui.components.navigation
 
+import AuthViewModel
 import ChatUI
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,52 +10,37 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.physicistscard.android.ui.screens.accountScreen.AddAccountScreen
-import com.example.physicistscard.android.ui.screens.accountScreen.BindEmailScreen
-import com.example.physicistscard.android.ui.screens.accountScreen.BindPhoneScreen
-import com.example.physicistscard.android.ui.screens.accountScreen.ResetPasswordScreen
-import com.example.physicistscard.android.ui.screens.accountScreen.SwitchAvatarScreen
-import com.example.physicistscard.android.ui.screens.accountScreen.UnsubscribeAccountScreen
-import com.example.physicistscard.android.ui.screens.cardbagScreens.CardBagScreen
-import com.example.physicistscard.android.ui.screens.chatScreens.FriendProfileScreen
-import com.example.physicistscard.android.ui.screens.chatScreens.UserFriendsScreen
-import com.example.physicistscard.android.ui.screens.chatScreens.UserInteractionsScreen
-import com.example.physicistscard.android.ui.screens.communityScreens.CommunityScreen
-import com.example.physicistscard.android.ui.screens.communityScreens.PostDetailScreen
-import com.example.physicistscard.android.ui.screens.communityScreens.commentsSample
-import com.example.physicistscard.android.ui.screens.communityScreens.communityPosts
-import com.example.physicistscard.android.ui.screens.deliveryScreen.DeliveryDetailsScreen
-import com.example.physicistscard.android.ui.screens.deliveryScreen.sampleLogisticsInfo
-import com.example.physicistscard.android.ui.screens.editScreens.EditPostScreen
-import com.example.physicistscard.android.ui.screens.managementScreen.ManagementScreen
-import com.example.physicistscard.android.ui.screens.managementScreen.accountManagement.AccountManagementsScreen
-import com.example.physicistscard.android.ui.screens.managementScreen.communityManagement.CommunityManagementsScreen
-import com.example.physicistscard.android.ui.screens.managementScreen.communityManagement.UserCollectionsScreen
-import com.example.physicistscard.android.ui.screens.managementScreen.communityManagement.UserPostsScreen
-import com.example.physicistscard.android.ui.screens.managementScreen.storeManagement.StoreManagementsScreen
-import com.example.physicistscard.android.ui.screens.orderScreen.OrderDetail
-import com.example.physicistscard.android.ui.screens.orderScreen.OrderScreen
-import com.example.physicistscard.android.ui.screens.orderScreen.sampleOrders
+import androidx.navigation.compose.rememberNavController
+import com.example.physicistscard.android.auth.LoginEmailScreen
+import com.example.physicistscard.android.auth.LoginNormalScreen
+import com.example.physicistscard.android.auth.LoginPhoneScreen
+import com.example.physicistscard.android.auth.RegisterEmailScreen
+import com.example.physicistscard.android.auth.RegisterPhoneScreen
+import com.example.physicistscard.android.auth.StartScreen
+import com.example.physicistscard.android.community.chat.FriendProfileScreen
+import com.example.physicistscard.android.community.chat.UserFriendsScreen
+import com.example.physicistscard.android.community.chat.UserInteractionsScreen
+import com.example.physicistscard.android.community.main.CommunityScreen
+import com.example.physicistscard.android.community.main.PostDetailScreen
+import com.example.physicistscard.android.community.main.commentsSample
+import com.example.physicistscard.android.manager.accountManagement.AccountManagementsScreen
+import com.example.physicistscard.android.manager.communityManagement.CommunityManagementsScreen
+import com.example.physicistscard.android.manager.communityManagement.UserCollectionsScreen
+import com.example.physicistscard.android.manager.communityManagement.UserPostsScreen
 import com.example.physicistscard.android.ui.screens.settingsScreens.AboutPhysCardScreen
 import com.example.physicistscard.android.ui.screens.settingsScreens.FeedbackScreen
 import com.example.physicistscard.android.ui.screens.settingsScreens.LanguageSettingsScreen
 import com.example.physicistscard.android.ui.screens.settingsScreens.SettingsScreen
 import com.example.physicistscard.android.ui.screens.settingsScreens.ThemeSettingsScreen
-import com.example.physicistscard.android.ui.screens.storeScreens.ProductDetailScreen
-import com.example.physicistscard.android.ui.screens.storeScreens.StoreScreen
-import com.example.physicistscard.android.viewModels.FriendshipViewModel
-import com.example.physicistscard.transmissionModels.auth.user.Role
-import com.example.physicistscard.transmissionModels.auth.user.User
-import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun NavigationHost(
-    navController: NavHostController,
-    friendshipViewModel: FriendshipViewModel
+    navController: NavHostController = rememberNavController(),
+    authViewModel: AuthViewModel
 ) {
     NavHost(
-        navController,
-        startDestination = BottomNavItem.Store.route,
+        navController = navController,
+        startDestination = "start",
         enterTransition = {
             slideInHorizontally(initialOffsetX = { 1000 }) + fadeIn()
         },
@@ -67,81 +53,53 @@ fun NavigationHost(
         popExitTransition = {
             slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
         }
-        ) {
-        composable(BottomNavItem.Store.route) { StoreScreen(navController) }
-        composable(BottomNavItem.Community.route) { CommunityScreen(navController) }
-        composable(BottomNavItem.Management.route) { ManagementScreen(navController) }
-        composable(BottomNavItem.Settings.route) { SettingsScreen(navController) }
-        composable("productDetail/{productId}") { backStackEntry ->
-            // 从路由参数中获取商品ID
-            val productId = backStackEntry.arguments?.getString("productId")
-            ProductDetailScreen(productId = productId, comments = commentsSample, navController)
+    ) {
+        // 认证相关界面
+        composable("start") { StartScreen(navController) }
+        composable("login") { LoginNormalScreen(navController) }
+        composable("phone_register") { RegisterPhoneScreen(navController) }
+        composable("email_register") { RegisterEmailScreen(navController) }
+        composable("phone_login") { LoginPhoneScreen(navController) }
+        composable("email_login") { LoginEmailScreen(navController) }
+
+        // 社区相关界面
+        composable(BottomNavItem.Community.route) {
+            CommunityScreen(navController)
         }
-        composable("store-management-detail") { StoreManagementsScreen(navController) }
-        composable("community-management-detail") { CommunityManagementsScreen(navController) }
-        composable("account-management-detail") { AccountManagementsScreen(navController) }
         composable("postDetail/{postId}") { backStackEntry ->
-            // 从路由参数中获取推送ID
             val postId = backStackEntry.arguments?.getString("postId")
             PostDetailScreen(postId = postId, comments = commentsSample, navController)
         }
-        composable("store-card-bag") { CardBagScreen(navController) }
-        composable("store-order-detail") { OrderScreen(sampleOrders, navController) }
-        composable("store-delivery-status") { DeliveryDetailsScreen(sampleLogisticsInfo, navController) }
-        composable("orderDetail/{orderDetail}") {backStackEntry ->
-            // 从路由参数中获取订单ID
-            val orderId = backStackEntry.arguments?.getString("orderId")
-            OrderDetail(orderId, navController)
-        }
-        composable("community-edit-post") { EditPostScreen(navController) }
-        composable("community-my-post") { UserPostsScreen(communityPosts = communityPosts, navController) }
-        composable("community-my-favorite") { UserCollectionsScreen(communityPosts = communityPosts, navController) }
-        composable("community-interactive-message") { UserInteractionsScreen(navController) }
-        composable("user_interactions") {
-            UserInteractionsScreen(navController = navController)
-        }
-        // 好友界面和聊天界面导航
-        composable("user_interactions") {
-            UserInteractionsScreen(navController = navController)
-        }
-        composable("user_friends") {
-            // 使用视图模型加载好友列表
-            friendshipViewModel.loadFriends()
-            UserFriendsScreen(navController = navController, friendshipViewModel = friendshipViewModel)
+        composable("community-management-detail") {
+            CommunityManagementsScreen(navController)
         }
 
-        // 聊天界面
-        composable("chat/{friendId}") { backStackEntry ->
-            val friendId = backStackEntry.arguments?.getString("friendId")?: ""
-            ChatUI(
-                navController = navController,
-                currentUser = getCurrentUser(),
-                friendId = friendId
-            )
+        // 用户管理界面
+        composable("account-management-detail") {
+            AccountManagementsScreen(navController)
+        }
+        composable("community-my-post") {
+            UserPostsScreen(navController)
+        }
+        composable("community-my-favorite") {
+            UserCollectionsScreen(navController)
+        }
+        composable("user_friends") {
+            UserFriendsScreen(navController)
+        }
+        composable("user_interactions") {
+            UserInteractionsScreen(navController)
         }
         composable("friend_profile/{friendId}") { backStackEntry ->
             FriendProfileScreen(navController = navController, friendId = backStackEntry.arguments?.getString("friendId"))
         }
-        composable("account_management") {
-            AccountManagementsScreen(navController = navController)
+        composable("chat/{friendId}") {
+            ChatUI(navController)
         }
-        composable("account-switch-avatar") {
-            SwitchAvatarScreen(navController = navController)
-        }
-        composable("account-bind-phone") {
-            BindPhoneScreen(navController = navController)
-        }
-        composable("account-bind-email") {
-            BindEmailScreen(navController = navController)
-        }
-        composable("account-reset-password") {
-            ResetPasswordScreen(navController = navController)
-        }
-        composable("account-unsubscribe") {
-            UnsubscribeAccountScreen(navController = navController)
-        }
-        composable("account-switch") {
-            AddAccountScreen(navController = navController)
+
+        // 设置相关界面
+        composable(BottomNavItem.Settings.route) {
+            SettingsScreen(navController)
         }
         composable("setting-theme") {
             ThemeSettingsScreen(navController = navController)
@@ -155,23 +113,32 @@ fun NavigationHost(
         composable("setting-appmore") {
             AboutPhysCardScreen(navController = navController)
         }
+
+        // 注释掉与商城相关的界面
+        /*
+        composable(BottomNavItem.Store.route) {
+            StoreScreen(navController)
+        }
+        composable("productDetail/{productId}") { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId")
+            ProductDetailScreen(productId = productId, comments = commentsSample, navController)
+        }
+        composable("store-management-detail") {
+            StoreManagementsScreen(navController)
+        }
+        composable("store-card-bag") {
+            CardBagScreen(navController)
+        }
+        composable("store-order-detail") {
+            OrderScreen(sampleOrders, navController)
+        }
+        composable("store-delivery-status") {
+            DeliveryDetailsScreen(sampleLogisticsInfo, navController)
+        }
+        composable("orderDetail/{orderDetail}") { backStackEntry ->
+            val orderId = backStackEntry.arguments?.getString("orderId")
+            OrderDetail(orderId, navController)
+        }
+        */
     }
 }
-
-// 获取当前用户的模拟方法
-fun getCurrentUser(): User {
-    return User(
-        userId = "0",
-        username = "current_user",
-        email = "current@example.com",
-        phone = "9876543210",
-        passwordHash = "hashed_password",
-        avatarUrl = null,
-        bio = "This is my bio",
-        registerDate = kotlinx.datetime.Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault()),
-        isEmailVerified = true,
-        isPhoneVerified = true,
-        role = Role.USER
-    )
-}
-

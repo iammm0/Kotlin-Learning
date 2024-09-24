@@ -3,7 +3,7 @@ package com.example.physicistscard.android.ui.screens.storeScreens
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.example.physicistscard.android.ui.screens.communityScreens.basicItems.Comment
+import com.example.physicistscard.android.community.main.basicItems.Comment
 import com.example.physicistscard.android.ui.screens.storeScreens.basicItems.Product
 import com.example.physicistscard.android.ui.screens.storeScreens.basicItems.ProductSection
 

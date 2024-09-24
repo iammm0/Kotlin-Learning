@@ -3,10 +3,12 @@ package com.example.physicistscard.android.activities
 import AuthViewModel
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
@@ -26,6 +28,7 @@ class AuthActivity : ComponentActivity() {
 
     private val authViewModel: AuthViewModel by viewModel()
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

@@ -3,7 +3,6 @@ package com.example.physicistscard.utils
 import io.ktor.websocket.Frame
 import io.ktor.websocket.WebSocketSession
 import io.ktor.websocket.readText
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 
